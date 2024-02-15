@@ -37,18 +37,18 @@ void loop() {
 
   estorbo(1,255,50,80); // (run, pwm, offTime, onTime)
   estorbo2(1,255,30);
-  RUN(frame, 1);
+  RUN(frame, 2);
   delay(sendDelay);
-  FREC(frame,1,10);
+  FREC(frame,2,100);
  // Serial2.write("HOLA");
-  delay(1000);
-  STOP(frame, 1);
+  delay(3000);
+  STOP(frame, 2);
   delay(sendDelay);
-  FREC(frame,1,5);
+  FREC(frame,2,5);
  //Serial2.write("CHAU");
   estorbo(0,255,50,80); // (run, pwm, offTime, onTime)
   estorbo2(0,255,30);
-  delay(1000);
+  delay(3000);
 }
 
 //------------------------------------------------------------------------

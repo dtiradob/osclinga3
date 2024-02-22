@@ -74,7 +74,12 @@ void setup() {
     delay(100);
     display.clearDisplay();
     display.display();
-    display.setTextColor(WHITE);  
+    display.setTextColor(WHITE);
+    display.setTextSize(2);
+    display.setCursor(0, 0);  
+    display.print("IP: ");
+    display.setCursor(0, 40);
+    display.print("WiFi.localIP()");
 
     // (pin, canal)
     ledcAttachPin(4, 1);   // IZQUIERDA
@@ -96,6 +101,22 @@ void setup() {
 }
 
 void loop() {
+
+  switch(modox){
+    case 1:
+      Serial.print("modo: ");
+      Serial.println(modox, " coreo");
+    break;
+    case 2:
+      Serial.print("modo: ");
+      Serial.println(modox, " osc");
+    break;
+    case 3:
+      Serial.print("modo: ");
+      Serial.println(modox, " live");
+      buttonPushCounter = 0;
+    break;
+  }
 
   OSCMessage msg;
   int size = Udp.parsePacket();
@@ -124,6 +145,7 @@ void buttonRead(){
   if (buttonState != lastButtonState) {
     if (buttonState == LOW) {
       buttonPushCounter++;
+      Serial.println(buttonPushCounter);
     } 
   }
   lastButtonState = buttonState;

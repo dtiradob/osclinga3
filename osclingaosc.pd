@@ -55,9 +55,9 @@
 #X connect 10 0 8 0;
 #X connect 14 0 8 0;
 #X connect 15 0 14 0;
-#X coords 0 -1 2 1 304 149 2 100 100;
+#X coords 0 -1 2 1 303 148 2 100 100;
 #X restore 17 77 pd controlMotor;
-#N canvas 92 136 331 294 motor 0;
+#N canvas 92 136 331 294 motor 1;
 #X obj 77 223 outlet;
 #X obj 77 159 pack 0 0 0, f 24;
 #X obj 77 34 inlet;
@@ -113,7 +113,7 @@
 #X connect 10 0 8 0;
 #X connect 14 0 15 0;
 #X connect 15 0 8 0;
-#X coords 0 -1 2 1 304 149 2 100 100;
+#X coords 0 -1 2 1 303 148 2 100 100;
 #X restore 328 77 pd controlMotor;
 #X obj 17 360 list prepend send;
 #X obj 17 391 list trim;
@@ -206,14 +206,13 @@
 #X connect 13 0 12 0;
 #X connect 21 0 5 0;
 #X connect 21 0 8 0;
-#X coords 0 0 1 1 357 204 2 2 3;
+#X coords 0 0 1 1 356 203 2 2 3;
 #X restore 650 77 pd controlEstorbo;
-#X msg 47 428 connect 192.168.1.3 9000;
 #X text 128 51 Motor 1;
 #X text 451 51 Motor 2;
 #X text 772 51 Estrobo;
 #X msg 17 6 \; panic 0;
-#N canvas 0 22 450 300 seq 1;
+#N canvas 0 22 450 300 seq 0;
 #X obj 168 429 tgl 20 0 empty empty play 23 10 0 12 #fcfcfc #000000 #000000 0 1;
 #X obj 204 110 i;
 #X obj 258 110 + 1;
@@ -253,7 +252,7 @@
 #X connect 3 0 0 0;
 #X connect 4 0 6 0 32.................IA........PR.........DI....;
 #X connect 6 0 3 0 32.................I....PC...PB....z....DA....;
-#X coords 0 0 1 1 37 41 2 78 31;
+#X coords 0 0 1 1 36 40 2 78 31;
 #X restore 199 261 pd step;
 #N canvas 0 22 450 300 step 0;
 #X obj 39 -6 bng 116 250 50 0 empty empty empty 17 7 0 10 #ffffff #c2f4bf #373737;
@@ -268,7 +267,7 @@
 #X connect 3 0 6 0 32.................IA........PR.........DI....;
 #X connect 5 0 6 1 32.................g....P7+++eH....D++++mE....;
 #X connect 6 0 2 0 32.................I....PC...PB....z....DA....;
-#X coords 0 0 1 1 37 41 2 78 31;
+#X coords 0 0 1 1 36 40 2 78 31;
 #X restore 240 261 pd step;
 #N canvas 0 22 450 300 step 0;
 #X obj 39 -7 bng 116 250 50 0 empty empty empty 17 7 0 10 #ffffff #c2f4bf #373737;
@@ -284,7 +283,7 @@
 #X connect 3 0 0 0;
 #X connect 4 0 6 0 32.................IA........PR.........DI....;
 #X connect 6 0 3 0 32.................I....PC...PB....z....DA....;
-#X coords 0 0 1 1 37 41 2 78 31;
+#X coords 0 0 1 1 36 40 2 78 31;
 #X restore 281 261 pd step;
 #N canvas 0 22 450 300 step 0;
 #X obj 39 -6 bng 116 250 50 0 empty empty empty 17 7 0 10 #ffffff #c2f4bf #373737;
@@ -300,7 +299,7 @@
 #X connect 3 0 0 0;
 #X connect 4 0 6 0 32.................IA........PR.........DI....;
 #X connect 6 0 3 0 32.................I....PC...PB....z....DA....;
-#X coords 0 0 1 1 36 40 2 78 31;
+#X coords 0 0 1 1 35 39 2 78 31;
 #X restore 322 261 pd step;
 #N canvas 0 22 450 300 step 0;
 #X obj 39 -9 bng 116 250 50 0 empty empty empty 17 7 0 10 #ffffff #c2f4bf #373737;
@@ -316,7 +315,7 @@
 #X connect 3 0 0 0;
 #X connect 4 0 6 0 32.................IA........PR.........DI....;
 #X connect 6 0 3 0 32.................I....PC...PB....z....DA....;
-#X coords 0 0 1 1 36 40 2 78 31;
+#X coords 0 0 1 1 35 39 2 78 31;
 #X restore 363 261 pd step;
 #N canvas 0 22 450 300 step 0;
 #X obj 39 -9 bng 116 250 50 0 empty empty empty 17 7 0 10 #ffffff #c2f4bf #373737;
@@ -332,7 +331,7 @@
 #X connect 3 0 0 0;
 #X connect 4 0 6 0 32.................IA........PR.........DI....;
 #X connect 6 0 3 0 32.................I....PC...PB....z....DA....;
-#X coords 0 0 1 1 36 40 2 78 31;
+#X coords 0 0 1 1 35 39 2 78 31;
 #X restore 404 261 pd step;
 #N canvas 0 22 450 300 step 0;
 #X obj 39 -7 bng 116 250 50 0 empty empty empty 17 7 0 10 #ffffff #c2f4bf #373737;
@@ -348,7 +347,7 @@
 #X connect 3 0 0 0;
 #X connect 4 0 6 0 32.................IA........PR.........DI....;
 #X connect 6 0 3 0 32.................I....PC...PB....z....DA....;
-#X coords 0 0 1 1 36 40 2 78 31;
+#X coords 0 0 1 1 35 39 2 78 31;
 #X restore 444 261 pd step;
 #N canvas 0 22 450 300 step 0;
 #X obj 39 -5 bng 116 250 50 0 empty empty empty 17 7 0 10 #ffffff #c2f4bf #373737;
@@ -364,7 +363,7 @@
 #X connect 3 0 0 0;
 #X connect 4 0 6 0 32.................IA........PR.........DI....;
 #X connect 6 0 3 0 32.................I....PC...PB....z....DA....;
-#X coords 0 0 1 1 36 40 2 78 31;
+#X coords 0 0 1 1 35 39 2 78 31;
 #X restore 485 261 pd step;
 #N canvas 0 22 450 300 step 0;
 #X obj 39 -8 bng 116 250 50 0 empty empty empty 17 7 0 10 #ffffff #c2f4bf #373737;
@@ -380,7 +379,7 @@
 #X connect 3 0 0 0;
 #X connect 4 0 6 0 32.................IA........PR.........DI....;
 #X connect 6 0 3 0 32.................I....PC...PB....z....DA....;
-#X coords 0 0 1 1 36 40 2 78 31;
+#X coords 0 0 1 1 35 39 2 78 31;
 #X restore 525 261 pd step;
 #N canvas 0 22 450 300 step 0;
 #X obj 39 -6 bng 116 250 50 0 empty empty empty 17 7 0 10 #ffffff #c2f4bf #373737;
@@ -396,7 +395,7 @@
 #X connect 3 0 0 0;
 #X connect 4 0 6 0 32.................IA........PR.........DI....;
 #X connect 6 0 3 0 32.................I....PC...PB....z....DA....;
-#X coords 0 0 1 1 36 40 2 78 31;
+#X coords 0 0 1 1 35 39 2 78 31;
 #X restore 566 261 pd step;
 #N canvas 0 22 450 300 step 0;
 #X obj 39 -6 bng 116 250 50 0 empty empty empty 17 7 0 10 #ffffff #c2f4bf #373737;
@@ -412,7 +411,7 @@
 #X connect 3 0 0 0;
 #X connect 4 0 6 0 32.................IA........PR.........DI....;
 #X connect 6 0 3 0 32.................I....PC...PB....z....DA....;
-#X coords 0 0 1 1 36 40 2 78 31;
+#X coords 0 0 1 1 35 39 2 78 31;
 #X restore 607 261 pd step;
 #N canvas 0 22 450 300 step 0;
 #X obj 39 -9 bng 116 250 50 0 empty empty empty 17 7 0 10 #ffffff #c2f4bf #373737;
@@ -428,7 +427,7 @@
 #X connect 3 0 0 0;
 #X connect 4 0 6 0 32.................IA........PR.........DI....;
 #X connect 6 0 3 0 32.................I....PC...PB....z....DA....;
-#X coords 0 0 1 1 36 40 2 78 31;
+#X coords 0 0 1 1 35 39 2 78 31;
 #X restore 647 261 pd step;
 #N canvas 0 22 450 300 step 0;
 #X obj 39 -8 bng 116 250 50 0 empty empty empty 17 7 0 10 #ffffff #c2f4bf #373737;
@@ -444,7 +443,7 @@
 #X connect 3 0 0 0;
 #X connect 4 0 6 0 32.................IA........PR.........DI....;
 #X connect 6 0 3 0 32.................I....PC...PB....z....DA....;
-#X coords 0 0 1 1 36 40 2 78 31;
+#X coords 0 0 1 1 35 39 2 78 31;
 #X restore 688 261 pd step;
 #N canvas 0 22 450 300 step 0;
 #X obj 39 -6 bng 116 250 50 0 empty empty empty 17 7 0 10 #ffffff #c2f4bf #373737;
@@ -460,7 +459,7 @@
 #X connect 3 0 0 0;
 #X connect 4 0 6 0 32.................IA........PR.........DI....;
 #X connect 6 0 3 0 32.................I....PC...PB....z....DA....;
-#X coords 0 0 1 1 36 40 2 78 31;
+#X coords 0 0 1 1 35 39 2 78 31;
 #X restore 728 261 pd step;
 #N canvas 0 22 450 300 step 0;
 #X obj 39 -10 bng 116 250 50 0 empty empty empty 17 7 0 10 #ffffff #c2f4bf #373737;
@@ -476,7 +475,7 @@
 #X connect 3 0 0 0;
 #X connect 4 0 6 0 32.................IA........PR.........DI....;
 #X connect 6 0 3 0 32.................I....PC...PB....z....DA....;
-#X coords 0 0 1 1 36 40 2 78 31;
+#X coords 0 0 1 1 35 39 2 78 31;
 #X restore 769 261 pd step;
 #N canvas 0 22 450 300 step 0;
 #X obj 39 -6 bng 116 250 50 0 empty empty empty 17 7 0 10 #ffffff #c2f4bf #373737;
@@ -492,7 +491,7 @@
 #X connect 3 0 0 0;
 #X connect 4 0 6 0 32.................IA........PR.........DI....;
 #X connect 6 0 3 0 32.................I....PC...PB....z....DA....;
-#X coords 0 0 1 1 36 40 2 78 31;
+#X coords 0 0 1 1 35 39 2 78 31;
 #X restore 810 261 pd step;
 #X obj 943 311 t b f;
 #N canvas 0 22 450 300 motorSel 0;
@@ -509,7 +508,7 @@
 #X connect 3 0 1 0;
 #X connect 4 0 1 0;
 #X connect 5 0 4 0;
-#X coords 0 0 1 1 44 62 2 23 105;
+#X coords 0 0 1 1 43 61 2 23 105;
 #X restore 149 239 pd motorSel;
 #N canvas 0 22 450 300 step 0;
 #X obj 39 -5 bng 116 250 50 0 empty empty empty 17 7 0 10 #ffffff #c2f4bf #373737;
@@ -525,7 +524,7 @@
 #X connect 3 0 0 0;
 #X connect 4 0 6 0 32.................IA........PR.........DI....;
 #X connect 6 0 3 0 32.................I....PC...PB....z....DA....;
-#X coords 0 0 1 1 36 40 2 78 31;
+#X coords 0 0 1 1 35 39 2 78 31;
 #X restore 199 332 pd step;
 #N canvas 0 22 450 300 step 0;
 #X obj 39 -7 bng 116 250 50 0 empty empty empty 17 7 0 10 #ffffff #c2f4bf #373737;
@@ -541,7 +540,7 @@
 #X connect 3 0 0 0;
 #X connect 4 0 6 0 32.................IA........PR.........DI....;
 #X connect 6 0 3 0 32.................I....PC...PB....z....DA....;
-#X coords 0 0 1 1 36 40 2 78 31;
+#X coords 0 0 1 1 35 39 2 78 31;
 #X restore 240 332 pd step;
 #N canvas 0 22 450 300 step 0;
 #X obj 39 -8 bng 116 250 50 0 empty empty empty 17 7 0 10 #ffffff #c2f4bf #373737;
@@ -557,7 +556,7 @@
 #X connect 3 0 0 0;
 #X connect 4 0 6 0 32.................IA........PR.........DI....;
 #X connect 6 0 3 0 32.................I....PC...PB....z....DA....;
-#X coords 0 0 1 1 36 40 2 78 31;
+#X coords 0 0 1 1 35 39 2 78 31;
 #X restore 281 332 pd step;
 #N canvas 0 22 450 300 step 0;
 #X obj 39 -5 bng 116 250 50 0 empty empty empty 17 7 0 10 #ffffff #c2f4bf #373737;
@@ -573,7 +572,7 @@
 #X connect 3 0 0 0;
 #X connect 4 0 6 0 32.................IA........PR.........DI....;
 #X connect 6 0 3 0 32.................I....PC...PB....z....DA....;
-#X coords 0 0 1 1 38 42 2 78 31;
+#X coords 0 0 1 1 37 41 2 78 31;
 #X restore 322 332 pd step;
 #N canvas 0 22 450 300 step 0;
 #X obj 39 -8 bng 116 250 50 0 empty empty empty 17 7 0 10 #ffffff #c2f4bf #373737;
@@ -589,7 +588,7 @@
 #X connect 3 0 0 0;
 #X connect 4 0 6 0 32.................IA........PR.........DI....;
 #X connect 6 0 3 0 32.................I....PC...PB....z....DA....;
-#X coords 0 0 1 1 37 41 2 78 31;
+#X coords 0 0 1 1 36 40 2 78 31;
 #X restore 363 332 pd step;
 #N canvas 0 22 450 300 step 0;
 #X obj 39 -6 bng 116 250 50 0 empty empty empty 17 7 0 10 #ffffff #c2f4bf #373737;
@@ -605,7 +604,7 @@
 #X connect 3 0 0 0;
 #X connect 4 0 6 0 32.................IA........PR.........DI....;
 #X connect 6 0 3 0 32.................I....PC...PB....z....DA....;
-#X coords 0 0 1 1 37 41 2 78 31;
+#X coords 0 0 1 1 36 40 2 78 31;
 #X restore 404 332 pd step;
 #N canvas 0 22 450 300 step 0;
 #X obj 39 -8 bng 116 250 50 0 empty empty empty 17 7 0 10 #ffffff #c2f4bf #373737;
@@ -621,7 +620,7 @@
 #X connect 3 0 0 0;
 #X connect 4 0 6 0 32.................IA........PR.........DI....;
 #X connect 6 0 3 0 32.................I....PC...PB....z....DA....;
-#X coords 0 0 1 1 37 41 2 78 31;
+#X coords 0 0 1 1 36 40 2 78 31;
 #X restore 444 332 pd step;
 #N canvas 0 22 450 300 step 0;
 #X obj 39 -9 bng 116 250 50 0 empty empty empty 17 7 0 10 #ffffff #c2f4bf #373737;
@@ -637,7 +636,7 @@
 #X connect 3 0 0 0;
 #X connect 4 0 6 0 32.................IA........PR.........DI....;
 #X connect 6 0 3 0 32.................I....PC...PB....z....DA....;
-#X coords 0 0 1 1 37 41 2 78 31;
+#X coords 0 0 1 1 36 40 2 78 31;
 #X restore 485 332 pd step;
 #N canvas 0 22 450 300 step 0;
 #X obj 39 -6 bng 116 250 50 0 empty empty empty 17 7 0 10 #ffffff #c2f4bf #373737;
@@ -653,7 +652,7 @@
 #X connect 3 0 0 0;
 #X connect 4 0 6 0 32.................IA........PR.........DI....;
 #X connect 6 0 3 0 32.................I....PC...PB....z....DA....;
-#X coords 0 0 1 1 37 41 2 78 31;
+#X coords 0 0 1 1 36 40 2 78 31;
 #X restore 525 332 pd step;
 #N canvas 0 22 450 300 step 0;
 #X obj 39 -7 bng 116 250 50 0 empty empty empty 17 7 0 10 #ffffff #c2f4bf #373737;
@@ -669,7 +668,7 @@
 #X connect 3 0 0 0;
 #X connect 4 0 6 0 32.................IA........PR.........DI....;
 #X connect 6 0 3 0 32.................I....PC...PB....z....DA....;
-#X coords 0 0 1 1 37 41 2 78 31;
+#X coords 0 0 1 1 36 40 2 78 31;
 #X restore 566 332 pd step;
 #N canvas 0 22 450 300 step 0;
 #X obj 39 -8 bng 116 250 50 0 empty empty empty 17 7 0 10 #ffffff #c2f4bf #373737;
@@ -685,7 +684,7 @@
 #X connect 3 0 0 0;
 #X connect 4 0 6 0 32.................IA........PR.........DI....;
 #X connect 6 0 3 0 32.................I....PC...PB....z....DA....;
-#X coords 0 0 1 1 37 41 2 78 31;
+#X coords 0 0 1 1 36 40 2 78 31;
 #X restore 607 332 pd step;
 #N canvas 0 22 450 300 step 0;
 #X obj 39 -8 bng 116 250 50 0 empty empty empty 17 7 0 10 #ffffff #c2f4bf #373737;
@@ -701,7 +700,7 @@
 #X connect 3 0 0 0;
 #X connect 4 0 6 0 32.................IA........PR.........DI....;
 #X connect 6 0 3 0 32.................I....PC...PB....z....DA....;
-#X coords 0 0 1 1 37 41 2 78 31;
+#X coords 0 0 1 1 36 40 2 78 31;
 #X restore 647 332 pd step;
 #N canvas 0 22 450 300 step 0;
 #X obj 39 -6 bng 116 250 50 0 empty empty empty 17 7 0 10 #ffffff #c2f4bf #373737;
@@ -717,7 +716,7 @@
 #X connect 3 0 0 0;
 #X connect 4 0 6 0 32.................IA........PR.........DI....;
 #X connect 6 0 3 0 32.................I....PC...PB....z....DA....;
-#X coords 0 0 1 1 38 42 2 78 31;
+#X coords 0 0 1 1 37 41 2 78 31;
 #X restore 688 332 pd step;
 #N canvas 0 22 450 300 step 0;
 #X obj 39 -8 bng 116 250 50 0 empty empty empty 17 7 0 10 #ffffff #c2f4bf #373737;
@@ -733,7 +732,7 @@
 #X connect 3 0 0 0;
 #X connect 4 0 6 0 32.................IA........PR.........DI....;
 #X connect 6 0 3 0 32.................I....PC...PB....z....DA....;
-#X coords 0 0 1 1 37 41 2 78 31;
+#X coords 0 0 1 1 36 40 2 78 31;
 #X restore 728 332 pd step;
 #N canvas 0 22 450 300 step 0;
 #X obj 39 -6 bng 116 250 50 0 empty empty empty 17 7 0 10 #ffffff #c2f4bf #373737;
@@ -749,7 +748,7 @@
 #X connect 3 0 0 0;
 #X connect 4 0 6 0 32.................IA........PR.........DI....;
 #X connect 6 0 3 0 32.................I....PC...PB....z....DA....;
-#X coords 0 0 1 1 38 41 2 78 31;
+#X coords 0 0 1 1 37 40 2 78 31;
 #X restore 769 332 pd step;
 #N canvas 0 22 450 300 step 0;
 #X obj 39 -7 bng 116 250 50 0 empty empty empty 17 7 0 10 #ffffff #c2f4bf #373737;
@@ -765,7 +764,7 @@
 #X connect 3 0 0 0;
 #X connect 4 0 6 0 32.................IA........PR.........DI....;
 #X connect 6 0 3 0 32.................I....PC...PB....z....DA....;
-#X coords 0 0 1 1 37 41 2 78 31;
+#X coords 0 0 1 1 36 40 2 78 31;
 #X restore 810 332 pd step;
 #N canvas 0 22 450 300 motorSel 0;
 #X obj 23 122 hradio 21 1 0 2 empty empty MOTOR 0 -10 0 11 #fcfcfc #000000 #000000 0;
@@ -781,7 +780,7 @@
 #X connect 3 0 1 0;
 #X connect 4 0 6 0;
 #X connect 6 0 1 0;
-#X coords 0 0 1 1 44 62 2 23 105;
+#X coords 0 0 1 1 43 61 2 23 105;
 #X restore 149 310 pd motorSel;
 #X obj 1104 437 pack 1 0 0;
 #X obj 1139 396 t b f;
@@ -897,10 +896,11 @@
 #X connect 68 0 60 2;
 #X connect 69 0 64 2;
 #X connect 70 0 68 0;
-#X coords 0 0 1 1 767 228 2 86 227;
+#X coords 0 0 1 1 766 227 2 86 227;
 #X restore 1043 77 pd seq;
 #X obj 1031 328 oscformat -f iii /motor;
 #X obj 1774 328 oscformat -f iii /motor;
+#X msg 47 428 connect 192.168.1.5 9000;
 #X connect 0 0 4 0;
 #X connect 1 0 0 0 32.................j..........I.........fD....;
 #X connect 1 1 0 1 32.................j....H.....I....B....fD....;
@@ -919,8 +919,8 @@
 #X connect 10 3 8 3;
 #X connect 10 4 8 4;
 #X connect 10 5 8 5;
-#X connect 11 0 7 0;
-#X connect 16 0 17 0;
-#X connect 16 1 18 0;
+#X connect 15 0 16 0;
+#X connect 15 1 17 0;
+#X connect 16 0 4 0;
 #X connect 17 0 4 0;
-#X connect 18 0 4 0;
+#X connect 18 0 7 0;

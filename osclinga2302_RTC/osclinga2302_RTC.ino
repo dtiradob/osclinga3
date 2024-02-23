@@ -5,7 +5,7 @@
 #include <OSCData.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
-#include <ds3231.h> //https://github.com/rodan/ds3231
+#include <ds3231.h>  //https://github.com/rodan/ds3231
 
 const char *ssid = "Plan Humboldt 2.4Ghz";
 const char *password = "holaplan0!";
@@ -49,9 +49,16 @@ int wait = 0, fin = 0, preset = 1, new_frec = 40;
 int dia, militar;
 struct ts t;
 
+//-----------------------------------------------
+
+//DS3231_init(DS3231_CONTROL_INTCN);
+
 int modBusPin = 14;
 
 //-------------------------------------------------------
+
+float frecuencias[2] = { 0.0, 0.0 };
+unsigned long tiempo = 0;
 
 void setup() {
 
@@ -85,20 +92,43 @@ void setup() {
   Serial.println(Udp.localPort());
 #endif
   // display
-  Serial.println("inicio display");
+
   display.begin(SSD1306_SWITCHCAPVCC, 0x3C);
   display.display();
   delay(100);
   display.clearDisplay();
   display.display();
-  display.setTextColor(WHITE);
-  display.setTextSize(2);
+  display.setTextColor(SSD1306_WHITE);
+  display.setTextSize(1);
   display.setCursor(0, 0);
   display.print("IP: ");
-  display.setCursor(0, 25);
-  display.print(WiFi.localIP());
+  display.setCursor(18, 0);
+  display.println(WiFi.localIP());
+
+  //RTC
+  DS3231_get(&t);
+  militar = t.min + t.hour * 100;
+  dia = t.mon + t.mday * 100;
+  Serial.println("militar: ");
+  Serial.println(militar);
+  Serial.println("dia: ");
+  Serial.println(dia);
+
+  display.setCursor(0, 18);
+  display.print(t.mday);
+  display.setCursor(16, 18);
+  display.print("/");
+  display.setCursor(24, 18);
+  display.print(t.mon);
+  display.setCursor(40, 18);
+  display.print(t.hour);
+  display.setCursor(54, 18);
+  display.print(":");
+  display.setCursor(60, 18);
+  display.print(t.min);
+
   display.display();
-  Serial.println("FIN display");
+
   // (pin, canal)
   ledcAttachPin(4, 1);   // IZQUIERDA
   ledcAttachPin(32, 2);  // ATRÁS
@@ -128,99 +158,19 @@ void loop() {
   switch (modox) {
     case 1:  //COREO MIRKO
       {
-        unsigned long tiempo = millis() - pasado;
+        tiempo = millis() - pasado;
         display.clearDisplay();
         display.setCursor(0, 0);
         display.print("MODO: ");
-        display.setCursor(55, 0);
+        display.setCursor(30, 0);
         display.print(modox);
-        display.setCursor(0, 25);
+        display.setCursor(0, 18);
         display.print("tiempo: ");
-        display.setCursor(0, 50);
+        display.setCursor(50, 18);
         display.print(tiempo);
-        display.display();
-
-        if (tiempo < 420000) {
-          preset1();
-          estorbo(1, 40, 80, 60);
-        }
-
-        if ((tiempo > 420000) && (tiempo < 440000)) {
-          estorbo(0, 20, 30, 30);
-          preset2();
-        }
-
-        if ((tiempo > 440000) && (tiempo < 500000)) {
-          delay((random(2000)) + 2000);
-          preset3();
-        }
-
-        if ((tiempo > 500000) && (tiempo < 520000)) {
-          preset20();
-        }
-
-        if ((tiempo > 520000) && (tiempo < 580000)) {
-          delay((random(1000)) + 2000);
-          preset4();
-        }
-
-        if ((tiempo > 580000) && (tiempo < 590000)) {
-          preset5();
-          estorbo(1, 40, 80, 60);
-        }
-
-        if ((tiempo > 590000) && (tiempo < 710000)) {
-          estorbo(0, 20, 30, 30);
-          preset6();
-          estorbo2(1, 70, 60);
-        }
-
-        if ((tiempo > 710000) && (tiempo < 720000)) {
-          estorbo2(0, 70, 60);
-          preset50();
-          estorbo(1, 40, 80, 60);
-        }
-
-        if ((tiempo > 720000) && (tiempo < 780000)) {
-          apaga();
-          preset7();
-          estorback(1, 100, 2500, 100);
-          estorbo(1, 40, 80, 60);
-        }
-
-        if ((tiempo > 780000) && (tiempo < 790000)) {
-          estorback(0, 100, 2500, 100);
-          preset500();
-          estorbo(1, 40, 80, 60);
-        }
-
-        if ((tiempo > 790000) && (tiempo < 820000)) {
-          estorbackfin(1, 100, 3000, 3000);
-        }
-
-        if (tiempo > 820000) {
-          if (!wait) {
-            estorbackfin(0, 100, 3000, 3000);
-            preset0();
-            wait = 1;
-          }
-        }
-
-        if (wait) {
-          DS3231_get(&t);
-          militar = t.min + t.hour * 100;
-          dia = t.mon + t.mday * 100;
-
-          if ((dia == 406) || (dia == 1106) || (dia == 1806) || (dia == 2506) || (dia == 207) || (dia == 907) || (dia == 1607)) {
-            if ((militar == 1440) || (militar == 1540) || (militar == 1640)) {
-              reloz();
-            }
-          } else {
-            if ((militar == 1140) || (militar == 1440) || (militar == 1540)) {
-              reloz();
-            }
-          }
-        }
+        displayFrecs();
+        display.display();     
+        coreoMirko();
       }
       break;
     case 2:  //OSC
@@ -252,13 +202,14 @@ void loop() {
   buttonRead();
   //modBus_STATUS(frame, 2);
   modBus_callback();
+  agenda();
 }
 
 void modBus_callback() {
   if (Serial2.available()) {
     //display.clearDisplay();
     while (Serial2.available()) {
-      Serial.println(Serial2.read(),HEX);
+      Serial.println(Serial2.read(), HEX);
       //int inByte = Serial2.read();
       //Serial.write(inByte);
       //display.setCursor(0, 0);
@@ -296,31 +247,36 @@ void buttonRead() {
             display.setCursor(55, 0);
             display.print(modox);
             display.display();
+            pasado = millis();
             break;
           case 2:
             modox = 2;
-            Serial.print("modo: ");
-            Serial.print(modox);
-            Serial.println(" OSC");
+            //Serial.print("modo: ");
+            //Serial.print(modox);
+            //Serial.println(" OSC");
 
             display.clearDisplay();
             display.setCursor(0, 0);
             display.print("MODO: ");
-            display.setCursor(55, 0);
+            display.setCursor(30, 0);
             display.print(modox);
+            display.setCursor(40, 0);
+            display.print("OSC");
             display.display();
             break;
           case 3:
             modox = 3;
-            Serial.print("modo: ");
-            Serial.print(modox);
-            Serial.println(" live enc");
+            //Serial.print("modo: ");
+            //Serial.print(modox);
+            //Serial.println(" live enc");
 
             display.clearDisplay();
             display.setCursor(0, 0);
             display.print("MODO: ");
-            display.setCursor(55, 0);
+            display.setCursor(30, 0);
             display.print(modox);
+            display.setCursor(40, 0);
+            display.print("ENC");
             display.display();
 
             buttonPushCounter = 0;
@@ -335,13 +291,13 @@ void buttonRead() {
 void printDisplay(int label, int dato) {
   display.clearDisplay();
   display.setCursor(0, 0);
-  display.setTextSize(2);
+  display.setTextSize(1);
   display.print("motor: ");
-  display.setCursor(70, 0);
+  display.setCursor(40, 0);
   display.print(label);
-  display.setCursor(0, 40);
+  display.setCursor(0, 16);
   display.print(dato / 10.);
-  display.setCursor(80, 40);
+  display.setCursor(40, 16);
   display.print("Hz");
 
   display.display();
@@ -376,6 +332,8 @@ void motoresOSC(OSCMessage &msg) {
   Serial.println(freq / 10.);
 
   printDisplay(id, freq);
+  displayFrecs();
+  display.display();
 }
 
 void strobox() {
@@ -499,8 +457,10 @@ void RUN(unsigned char *frame, int address) {
   sendModBus(frame);
 }
 
-void FREC(unsigned char *frame, int address, float frecuencia) {
 
+
+void FREC(unsigned char *frame, int address, float frecuencia) {
+  frecuencias[address - 1] = frecuencia;
   int frec_int = frecuencia * 10.;
   if (frec_int < 0) frec_int += 0xFFFF + 1;
 
@@ -554,21 +514,43 @@ void sendModBus(unsigned char *frame) {
 }
 //------------------------------------------------------------------------
 
-//TORPEDO
+void reloz() {
+  if (modox > 1) {
+    modox = 1;
+  }
+  preset = 1;
+  fin = 0;
+  pasado = millis();
+  wait = 0;
+}
 
-//paket[8] = { Address, Function Code, Register HIGH Byte, Register LOW Byte, Param HIGH Byte, Param LOW Byte, CRC LOW Byte, CRC HIGH Byte }
+void agenda() {
+  DS3231_get(&t);
+  militar = t.min + t.hour * 100;
+  dia = t.mon + t.mday * 100;
 
-//CRC-16/MODBUS  0x010600000000 -> 0xCA89
-//               0x010600000001 -> 0x0A48
+  if ((dia == 406) || (dia == 1106) || (dia == 1806) || (dia == 2506) || (dia == 207) || (dia == 907) || (dia == 1607)) {
+    if ((militar == 1440) || (militar == 1540) || (militar == 1640)) {
+      reloz();
+    }
+  } else {
+    if ((militar == 1140) || (militar == 1440) || (militar == 1540)) {
+      reloz();
+    }
+  }
+}
 
-//uint8_t paket_STOP[8] = { 0x01, 0x06, 0x00, 0x00, 0x00, 0x00, 0x89, 0xCA };
-//uint8_t paket_RUN[8]  = { 0x01, 0x06, 0x00, 0x00, 0x00, 0x01, 0x48, 0x0A };
+void displayFrecs() {
+  display.setCursor(0, 54);
+  display.print("f1: ");
+  display.setCursor(18, 54);
+  display.print(frecuencias[0]);
 
-
-//CRC-16/MODBUS   0x01060001015E -> 0x6258
-//                0x010600010032 -> 0xDF59
-
-//uint8_t paket_35Hz[8] = { 0x01, 0x06, 0x00, 0x01, 0x01, 0x5E, 0x58, 0x62 };
-//uint8_t paket_5Hz[8] =  { 0x01, 0x06, 0x00, 0x01, 0x00, 0x32, 0x59, 0xDF };
-
-//------------------------------------------------------------------------
+  display.setCursor(45, 54);
+  display.print("|");
+  
+  display.setCursor(52, 54);
+  display.print("f2: ");
+  display.setCursor(70, 54);
+  display.print(frecuencias[1]);
+}

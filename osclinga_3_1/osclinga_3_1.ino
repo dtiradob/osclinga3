@@ -9,10 +9,10 @@
 #include "AiEsp32RotaryEncoder.h"
 #include "Arduino.h"
 
-/*/----------------------ENCODER-----------------------
-#define ROTARY_ENCODER_A_PIN 12
+//----------------------ENCODER-----------------------
+#define ROTARY_ENCODER_A_PIN 13
 #define ROTARY_ENCODER_B_PIN 26
-#define ROTARY_ENCODER_BUTTON_PIN 23
+#define ROTARY_ENCODER_BUTTON_PIN 12
 #define ROTARY_ENCODER_VCC_PIN -1 
 #define ROTARY_ENCODER_STEPS 1
 //#define ROTARY_ENCODER_STEPS 2
@@ -21,14 +21,15 @@
 AiEsp32RotaryEncoder rotaryEncoder = AiEsp32RotaryEncoder(ROTARY_ENCODER_A_PIN, ROTARY_ENCODER_B_PIN, ROTARY_ENCODER_BUTTON_PIN, ROTARY_ENCODER_VCC_PIN, ROTARY_ENCODER_STEPS);
 float frecENC = 0.0;
 
-*/
-
+// WIFI - OSC
 
 const char *ssid = "Plan Humboldt 2.4Ghz";
 const char *password = "holaplan0!";
 WiFiUDP Udp;
 const unsigned int localPort = 9000;
 OSCErrorCode error;
+ //---
+
 int estorbox_on = 0;
 int run = 0;
 int led1 = 0;
@@ -39,7 +40,7 @@ int pwm = 0;
 unsigned long previous_strobox = 0;
 unsigned char frame[8];
 
-const int buttonPin = 23;  //PIN BOTÓN MULTIMODO
+const int buttonPin = 15;  //PIN BOTÓN MULTIMODO
 int buttonState = 0;
 int selec = 0;
 int apretado = 0;
@@ -68,6 +69,11 @@ struct ts t;
 
 //-----------------------------------------------
 
+//---------VARIABLES MULTIPLEXOR----------------
+const int aMultiplexPin = 18;
+
+
+//-----------------------------------------------
 //DS3231_init(DS3231_CONTROL_INTCN);
 
 int modBusPin = 14;
@@ -77,7 +83,7 @@ int modBusPin = 14;
 float frecuencias[2] = { 0.0, 0.0 };
 unsigned long tiempo = 0;
 
-/*/---------------FUNCIONES ENCODER------------------
+//---------------FUNCIONES ENCODER------------------
 void rotary_onButtonClick() {
   static unsigned long lastTimePressed = 0;
   //ignore multiple press in that time milliseconds
@@ -108,7 +114,7 @@ void IRAM_ATTR readEncoderISR() {
 }
 
 //-------------------------------------------------------------------
-*/
+
 void setup() {
 
   Serial.begin(115200);
@@ -198,7 +204,12 @@ void setup() {
   //modBus pin
   pinMode(modBusPin, OUTPUT);
   digitalWrite(modBusPin, LOW);  //lo iniciamos en LOW, listo para leer
-                                 /*
+
+  // Multiplex
+  pinMode(aMultiplexPin, OUTPUT);
+  digitalWrite(aMultiplexPin, LOW); // LOW ENVIAR MODBUS; HIGH ENVIAR DMX
+
+
   //--------------ENCODER------------------
   //we must initialize rotary encoder
   rotaryEncoder.begin();
@@ -210,7 +221,7 @@ void setup() {
 
   //rotaryEncoder.disableAcceleration(); //acceleration is now enabled by default - disable if you dont need it
   rotaryEncoder.setAcceleration(250);  //or set the value - larger number = more accelearation; 0 or 1 means disabled acceleration
-*/
+
   Serial.println("FIN SETUP");
 }
 
@@ -260,21 +271,25 @@ void loop() {
       break;
     case 3:  // LIVE ENC
       {
-        //rotary_loop();
+        rotary_loop();
       }
       break;
   }
+  
   buttonRead();
   //modBus_STATUS(frame, 2);
   modBus_callback();
   agenda();
+
 }
 
 void modBus_callback() {
   if (Serial2.available()) {
     //display.clearDisplay();
+    Serial.println("tu hermana");
     while (Serial2.available()) {
       Serial.println(Serial2.read(), DEC);
+
     }
   }
 }
@@ -325,9 +340,9 @@ void buttonRead() {
             break;
           case 3:
             modox = 3;
-            //Serial.print("modo: ");
-            //Serial.print(modox);
-            //Serial.println(" live enc");
+            Serial.print("modo: ");
+            Serial.print(modox);
+            Serial.println(" live enc");
 
             display.clearDisplay();
             display.setCursor(0, 0);
@@ -397,11 +412,10 @@ void motoresOSC(OSCMessage &msg) {
 
 void strobox() {
   unsigned long currentMillis = millis();
-
   if (run) {
     if (estorbox_on == 0) {
       if (currentMillis - previous_strobox >= int1) {
-        previous = currentMillis;
+        previous_strobox = currentMillis;
         ledcWrite(led1, pwm);
         ledcWrite(led2, 0);
         estorbox_on = 1;
@@ -644,6 +658,7 @@ void CRC(unsigned char *frame) {
 
 
 void sendModBus(unsigned char *frame) {
+  digitalWrite(aMultiplexPin, LOW);
   digitalWrite(modBusPin, HIGH);
   Serial2.write(frame, 8);
   Serial2.flush();

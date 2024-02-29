@@ -130,7 +130,7 @@
 #X obj 34 883 list trim;
 #X msg 81 950 disconnect;
 #X obj 34 993 netsend -u -b;
-#N canvas 92 136 331 294 estorbo 0;
+#N canvas 92 136 331 294 estorbo 1;
 #X obj 77 223 outlet;
 #X obj 77 34 inlet;
 #X obj 77 111 i;
@@ -1326,7 +1326,6 @@
 #X connect 24 0 1 0;
 #X coords 0 0 1 1 782 469 2 91 209;
 #X restore 16 57 pd seq;
-#X msg 64 920 connect 192.168.1.5 9000;
 #X msg 321 920 connect 127.0.0.1 9000;
 #N canvas 0 22 450 300 leds 0;
 #X obj 263 532 outlet;
@@ -1425,6 +1424,7 @@
 #X coords 0 0 1 1 157 202 2 4 0;
 #X restore 1054 569 pd controlLeds;
 #X text 1110 538 LEDS, f 6;
+#X msg 64 920 connect 192.168.1.80 9000;
 #X connect 0 0 4 0;
 #X connect 1 0 0 0;
 #X connect 1 1 0 1;
@@ -1444,8 +1444,8 @@
 #X connect 9 4 8 4;
 #X connect 9 5 8 5;
 #X connect 15 0 7 0;
-#X connect 16 0 7 0;
-#X connect 17 0 4 0;
-#X connect 18 0 17 0;
-#X connect 18 1 17 1;
-#X connect 18 2 17 2;
+#X connect 16 0 4 0;
+#X connect 17 0 16 0;
+#X connect 17 1 16 1;
+#X connect 17 2 16 2;
+#X connect 19 0 7 0;

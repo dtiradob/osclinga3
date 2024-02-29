@@ -9,26 +9,47 @@
 #include "AiEsp32RotaryEncoder.h"
 #include "Arduino.h"
 
+
+//----------------------IO-----------------------
+#define ENC2_SW 2
+#define PWM1 4
+#define FAN_PWM 3
+#define ENC1_CLK 13 // 12 in the schematic
+#define ENC1_SW 12 // 13 in the schematic
+#define MODBUS_DMX_REDE 14
+#define MODE 15
+#define UART2RX 16
+#define UART2TX 17
+#define A_MULTIPLEXER 18
+#define ENC2_CLK 19
+#define SDA 21
+#define SCL 22
+#define ENC2_DT 23
+#define PWM3 25
+#define ENC1_DT 26
+#define PWM4 27
+#define PWM2 32
+#define ULT_TRIG 33
+#define ULT_ECHO 34
+#define PIR_INPUT 35
+
 //----------------------ENCODER-----------------------
-#define ROTARY_ENCODER_A_PIN 13
-#define ROTARY_ENCODER_B_PIN 26
-#define ROTARY_ENCODER_BUTTON_PIN 12
 #define ROTARY_ENCODER_VCC_PIN -1 
 #define ROTARY_ENCODER_STEPS 1
-//#define ROTARY_ENCODER_STEPS 2
-//#define ROTARY_ENCODER_STEPS 4
+
 //instead of changing here, rather change numbers above
-AiEsp32RotaryEncoder rotaryEncoder = AiEsp32RotaryEncoder(ROTARY_ENCODER_A_PIN, ROTARY_ENCODER_B_PIN, ROTARY_ENCODER_BUTTON_PIN, ROTARY_ENCODER_VCC_PIN, ROTARY_ENCODER_STEPS);
+AiEsp32RotaryEncoder rotaryEncoder = AiEsp32RotaryEncoder(ENC1_CLK, ENC1_DT, ENC1_SW, ROTARY_ENCODER_VCC_PIN, ROTARY_ENCODER_STEPS);
 float frecENC = 0.0;
 
-// WIFI - OSC
 
+//--------------WIFI - OSC---------------
 const char *ssid = "Plan Humboldt 2.4Ghz";
 const char *password = "holaplan0!";
 WiFiUDP Udp;
 const unsigned int localPort = 9000;
 OSCErrorCode error;
- //---
+
+//--------------------------------------
 
 int estorbox_on = 0;
 int run = 0;
@@ -40,7 +61,6 @@ int pwm = 0;
 unsigned long previous_strobox = 0;
 unsigned char frame[8];
 
-const int buttonPin = 15;  //PIN BOTÓN MULTIMODO
 int buttonState = 0;
 int selec = 0;
 int apretado = 0;
@@ -50,7 +70,6 @@ unsigned long push;
 int modox = 0;
 int buttonPushCounter = 0;  // counter for the number of button presses
 int lastButtonState = 0;    // previous state of the
-const int ledPin = 2;
 
 unsigned long lastDebounceTime = 0;  // the last time the output pin was toggled
 unsigned long debounceDelay = 50;    // the debounce time; increase if the output flickers
@@ -61,7 +80,7 @@ String labels[4] = {"","","",""};
 
 const int modbusDelay = 10;
 
-//--------------------variables mirko ---------------
+//--------------------variables mirko -------------------
 
 unsigned long previous = 0, previous2 = 0, previous_back = 0;
 unsigned long previousMillis = 0, previousMillis2 = 0, previousMillis7 = 0, previousMillis8 = 0;
@@ -71,24 +90,14 @@ int wait = 0, fin = 0, preset = 1, new_frec = 40;
 int dia, militar;
 struct ts t;
 
-//-----------------------------------------------
-
-//---------VARIABLES MULTIPLEXOR----------------
-const int aMultiplexPin = 18;
-
-
-//-----------------------------------------------
-//DS3231_init(DS3231_CONTROL_INTCN);
-
-int modBusPin = 14;
-
+//-------------------------------------------------------
 //-------------------------------------------------------
 
 float frecuencias[2] = { 0.0, 0.0 };
 bool motorStates[2] = { 0, 0 };
 unsigned long tiempo = 0;
 
-//---------------FUNCIONES ENCODER------------------
+//---------------FUNCIONES ENCODER----------------------
 void rotary_onButtonClick() {
   static unsigned long lastTimePressed = 0;
   //ignore multiple press in that time milliseconds
@@ -118,18 +127,19 @@ void IRAM_ATTR readEncoderISR() {
   rotaryEncoder.readEncoder_ISR();
 }
 
-//-------------------------------------------------------------------
+//-----------------------------------------------------
 
 void setup() {
 
   Serial.begin(115200);
   while (!Serial) { delay(100); }
   // ************************** MODBUS ***************************************
-  Serial2.begin(115200, SERIAL_8N1, 16, 17);  // Inicia UART2 Rx=16 Tx=17
+  Serial2.begin(115200, SERIAL_8N1, UART2RX, UART2TX);  // Inicia UART2 Rx=16 Tx=17
   // ************************ ACCESS POINT ************************************
+
+
   // Connect to WiFi network
   delay(10);
-
   Serial.println();
   Serial.println("******************************************************");
   Serial.print("Connecting to ");
@@ -177,10 +187,10 @@ void setup() {
 
 
   // (pin, canal)
-  ledcAttachPin(4, 1);   // IZQUIERDA
-  ledcAttachPin(32, 2);  // ATRÁS
-  ledcAttachPin(25, 3);  // ADELANTE
-  ledcAttachPin(27, 4);  // DERECHA
+  ledcAttachPin(PWM1, 1);   // IZQUIERDA
+  ledcAttachPin(PWM2, 2);  // ATRÁS
+  ledcAttachPin(PWM3, 3);  // ADELANTE
+  ledcAttachPin(PWM4, 4);  // DERECHA
 
   // (canal,frecuencia,resolución)
   ledcSetup(1, 1000, 8);
@@ -189,17 +199,16 @@ void setup() {
   ledcSetup(4, 1000, 8);
 
   // button
-  pinMode(buttonPin, INPUT);
-  pinMode(ledPin, OUTPUT);
-  digitalWrite(ledPin, LOW);
+  pinMode(MODE, INPUT);
+
 
   //modBus pin
-  pinMode(modBusPin, OUTPUT);
-  digitalWrite(modBusPin, LOW);  //lo iniciamos en LOW, listo para leer
+  pinMode(MODBUS_DMX_REDE, OUTPUT);
+  digitalWrite(MODBUS_DMX_REDE, LOW);  //lo iniciamos en LOW, listo para leer
 
   // Multiplex
-  pinMode(aMultiplexPin, OUTPUT);
-  digitalWrite(aMultiplexPin, LOW); // LOW ENVIAR MODBUS; HIGH ENVIAR DMX
+  pinMode(A_MULTIPLEXER, OUTPUT);
+  digitalWrite(A_MULTIPLEXER, LOW); // LOW ENVIAR MODBUS; HIGH ENVIAR DMX
 
 
   //--------------ENCODER------------------
@@ -296,7 +305,7 @@ void modBus_callback() {
 }
 
 void buttonRead() {
-  int reading = digitalRead(buttonPin);
+  int reading = digitalRead(MODE);
   if (reading != lastButtonState) {
     lastDebounceTime = millis();
   }
@@ -364,19 +373,15 @@ void motoresOSC(OSCMessage &msg) {
  
   if (on && motorStates[id-1]== 0) {
     RUN(frame, id);
-     
-
   } else if (!on && motorStates[id-1] == 1) {
     STOP(frame, id);
-     
-
   }
-    Serial.print("id: ");
-    Serial.print(id);
-    Serial.print(", encendido: ");
-    Serial.print(motorStates[id-1]);
-    Serial.print(", frequencia: ");
-    Serial.println(freq / 10.);
+  Serial.print("id: ");
+  Serial.print(id);
+  Serial.print(", encendido: ");
+  Serial.print(motorStates[id-1]);
+  Serial.print(", frequencia: ");
+  Serial.println(freq / 10.);
   FREC(frame, id, freq / 10.);
 
 }
@@ -407,10 +412,8 @@ void strobox() {
 }
 
 void statusOSC(OSCMessage &msg) {
-
   int id = msg.getInt(0);
-  Serial.println("STATUS");
-  //Serial.println(id);
+
   frame[0] = 0x02;
   frame[1] = 0x03;
   frame[2] = 0x00;
@@ -620,11 +623,11 @@ void CRC(unsigned char *frame) {
 
 
 void sendModBus(unsigned char *frame) {
-  digitalWrite(aMultiplexPin, LOW);
-  digitalWrite(modBusPin, HIGH);
+  digitalWrite(A_MULTIPLEXER, LOW);
+  digitalWrite(MODBUS_DMX_REDE, HIGH);
   Serial2.write(frame, 8);
   Serial2.flush();
-  digitalWrite(modBusPin, LOW);
+  digitalWrite(MODBUS_DMX_REDE, LOW);
   delay(modbusDelay);
 }
 //------------------------------------------------------------------------

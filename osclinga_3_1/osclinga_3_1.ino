@@ -57,6 +57,10 @@ unsigned long debounceDelay = 50;    // the debounce time; increase if the outpu
 
 Adafruit_SSD1306 display = Adafruit_SSD1306(128, 64, &Wire, -1);
 
+String labels[4] = {"","","",""};
+
+const int modbusDelay = 10;
+
 //--------------------variables mirko ---------------
 
 unsigned long previous = 0, previous2 = 0, previous_back = 0;
@@ -81,6 +85,7 @@ int modBusPin = 14;
 //-------------------------------------------------------
 
 float frecuencias[2] = { 0.0, 0.0 };
+bool motorStates[2] = { 0, 0 };
 unsigned long tiempo = 0;
 
 //---------------FUNCIONES ENCODER------------------
@@ -155,10 +160,9 @@ void setup() {
   display.display();
   display.setTextColor(SSD1306_WHITE);
   display.setTextSize(1);
-  display.setCursor(0, 0);
-  display.print("IP: ");
-  display.setCursor(18, 0);
   display.println(WiFi.localIP());
+  String localip = WiFi.localIP().toString();
+  labels[0] = "IP: " + localip;
 
   //RTC
   DS3231_get(&t);
@@ -169,20 +173,8 @@ void setup() {
   Serial.println("dia: ");
   Serial.println(dia);
 
-  display.setCursor(0, 18);
-  display.print(t.mday);
-  display.setCursor(16, 18);
-  display.print("/");
-  display.setCursor(24, 18);
-  display.print(t.mon);
-  display.setCursor(40, 18);
-  display.print(t.hour);
-  display.setCursor(54, 18);
-  display.print(":");
-  display.setCursor(60, 18);
-  display.print(t.min);
+  labels[1] = "date:"+String(t.mday) +"/"+ String(t.mon) +" time:"+ String(t.hour)+":"+String(t.min);
 
-  display.display();
 
   // (pin, canal)
   ledcAttachPin(4, 1);   // IZQUIERDA
@@ -222,6 +214,8 @@ void setup() {
   //rotaryEncoder.disableAcceleration(); //acceleration is now enabled by default - disable if you dont need it
   rotaryEncoder.setAcceleration(250);  //or set the value - larger number = more accelearation; 0 or 1 means disabled acceleration
 
+ // Inicializar Motores
+  stopAll();
   Serial.println("FIN SETUP");
 }
 
@@ -231,17 +225,10 @@ void loop() {
     case 1:  //COREO MIRKO
       {
         tiempo = millis() - pasado;
-        display.clearDisplay();
-        display.setCursor(0, 0);
-        display.print("MODO: ");
-        display.setCursor(30, 0);
-        display.print(modox);
-        display.setCursor(0, 18);
-        display.print("tiempo: ");
-        display.setCursor(50, 18);
-        display.print(tiempo);
+        labels[0] = "MODO: " + String(modox) +" SEQ";
+        labels[1] = "t:" + String(tiempo);
         displayFrecs();
-        display.display();
+        labels[2] = "";
         coreoMirko();
       }
       break;
@@ -267,11 +254,20 @@ void loop() {
           }
         }
         strobox();
+        labels[0] = "MODO: " + String(modox) +" OSC";
+        labels[1] = "";
+        labels[2] = "";
+        displayFrecs();
+
       }
       break;
     case 3:  // LIVE ENC
       {
         rotary_loop();
+        labels[0] = "MODO: " + String(modox) +" ENC";
+        labels[1] = "";
+        labels[2] = "";
+        displayFrecs();
       }
       break;
   }
@@ -280,13 +276,18 @@ void loop() {
   //modBus_STATUS(frame, 2);
   modBus_callback();
   agenda();
-
+  printOLED();
 }
 
+void stopAll(){
+  STOP(frame, 1);
+  STOP(frame, 2);
+  FREC(frame, 1, 0);
+  FREC(frame, 2, 0);
+}
 void modBus_callback() {
   if (Serial2.available()) {
     //display.clearDisplay();
-    Serial.println("tu hermana");
     while (Serial2.available()) {
       Serial.println(Serial2.read(), DEC);
 
@@ -314,46 +315,23 @@ void buttonRead() {
             Serial.print("modo: ");
             Serial.print(modox);
             Serial.println(" coreo");
-
-            display.clearDisplay();
-            display.setCursor(0, 0);
-            display.print("MODO: ");
-            display.setCursor(55, 0);
-            display.print(modox);
-            display.display();
             pasado = millis();
+            stopAll();
             break;
           case 2:
             modox = 2;
-            //Serial.print("modo: ");
-            //Serial.print(modox);
-            //Serial.println(" OSC");
-
-            display.clearDisplay();
-            display.setCursor(0, 0);
-            display.print("MODO: ");
-            display.setCursor(30, 0);
-            display.print(modox);
-            display.setCursor(40, 0);
-            display.print("OSC");
-            display.display();
+            Serial.print("modo: ");
+            Serial.print(modox);
+            Serial.println(" OSC");
+            stopAll();
             break;
           case 3:
             modox = 3;
             Serial.print("modo: ");
             Serial.print(modox);
-            Serial.println(" live enc");
-
-            display.clearDisplay();
-            display.setCursor(0, 0);
-            display.print("MODO: ");
-            display.setCursor(30, 0);
-            display.print(modox);
-            display.setCursor(40, 0);
-            display.print("ENC");
-            display.display();
-
+            Serial.println(" ENC");
             buttonPushCounter = 0;
+            stopAll();
             break;
         }
       }
@@ -362,21 +340,19 @@ void buttonRead() {
   lastButtonState = reading;
 }
 
-void printDisplay(int label, int dato) {
+void printOLED(){
   display.clearDisplay();
   display.setCursor(0, 0);
-  display.setTextSize(1);
-  display.print("motor: ");
-  display.setCursor(40, 0);
-  display.print(label);
-  display.setCursor(0, 16);
-  display.print(dato / 10.);
-  display.setCursor(40, 16);
-  display.print("Hz");
-
+  display.print(labels[0]);  
+  display.setCursor(0,16);
+  display.print(labels[1]);
+  display.setCursor(0,32);
+  display.print(labels[2]); 
+  display.setCursor(0,48);
+  display.print(labels[3]);     
   display.display();
-  //delay(100);
 }
+
 
 
 void motoresOSC(OSCMessage &msg) {
@@ -385,29 +361,24 @@ void motoresOSC(OSCMessage &msg) {
   int on = msg.getInt(1);
   float freq = msg.getInt(2);
 
-
-
-  if (on) {
+ 
+  if (on && motorStates[id-1]== 0) {
     RUN(frame, id);
-    delay(10);
-  } else {
+     
+
+  } else if (!on && motorStates[id-1] == 1) {
     STOP(frame, id);
-    delay(10);
+     
+
   }
-
+    Serial.print("id: ");
+    Serial.print(id);
+    Serial.print(", encendido: ");
+    Serial.print(motorStates[id-1]);
+    Serial.print(", frequencia: ");
+    Serial.println(freq / 10.);
   FREC(frame, id, freq / 10.);
-  delay(10);
 
-  Serial.print("id: ");
-  Serial.print(id);
-  Serial.print(", encendido: ");
-  Serial.print(on);
-  Serial.print(", frequencia: ");
-  Serial.println(freq / 10.);
-
-  printDisplay(id, freq);
-  displayFrecs();
-  display.display();
 }
 
 void strobox() {
@@ -470,17 +441,6 @@ void fullOSC(OSCMessage &msg) {
   CRC(frame);
 
   sendModBus(frame);
-  /*
-  Serial.print("id: ");
-  Serial.print(id);
-  Serial.print(", encendido: ");
-  Serial.print(on);
-  Serial.print(", frequencia: ");
-  Serial.println(freq / 10.);
-*/
-  //printDisplay(id, freq);
-  //displayFrecs();
-  //display.display();
 }
 
 void fullOSC2(OSCMessage &msg) {
@@ -583,7 +543,8 @@ void estorboOSC(OSCMessage &msg) {
 
 
 void STOP(unsigned char *frame, int address) {
-
+  
+  motorStates[address-1] = 0;
   frame[0] = address;  // Address
   frame[1] = 0x06;     // Function Code
   frame[2] = 0x00;     // Register HIGH Byte
@@ -597,6 +558,7 @@ void STOP(unsigned char *frame, int address) {
 
 void RUN(unsigned char *frame, int address) {
 
+  motorStates[address-1] = 1;
   frame[0] = address;
   frame[1] = 0x06;
   frame[2] = 0x00;
@@ -663,6 +625,7 @@ void sendModBus(unsigned char *frame) {
   Serial2.write(frame, 8);
   Serial2.flush();
   digitalWrite(modBusPin, LOW);
+  delay(modbusDelay);
 }
 //------------------------------------------------------------------------
 
@@ -693,16 +656,18 @@ void agenda() {
 }
 
 void displayFrecs() {
-  display.setCursor(0, 54);
-  display.print("f1: ");
-  display.setCursor(18, 54);
-  display.print(frecuencias[0]);
+  String on1 = "S ";
+  String on2 = "S ";
+  if(motorStates[0]){
+      on1 = "R ";
+  } else {
+    on1 = "S ";
+  }
+    if(motorStates[1]){
+      on2 = "R ";
+  } else {
+    on2 = "S ";
+  }
+  labels[3] = on1 + String(frecuencias[0])+ "Hz | "+ on2 + String(frecuencias[1])+ "Hz";
 
-  display.setCursor(45, 54);
-  display.print("|");
-
-  display.setCursor(52, 54);
-  display.print("f2: ");
-  display.setCursor(70, 54);
-  display.print(frecuencias[1]);
 }

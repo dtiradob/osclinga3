@@ -30,11 +30,11 @@ void apaga() {
 
 void preset0() {
 
-  delay(10);
+
   STOP(frame, 1);
-  delay(10);
+
   STOP(frame, 2);
-  delay(10);
+
   ledcWrite(1, 0);
   ledcWrite(2, 0);
   ledcWrite(3, 0);
@@ -47,13 +47,13 @@ void preset1() {
 
   if (preset == 1) {
     RUN(frame, 1);
-    delay(10);
+
     FREC(frame, 1, 8);
-    delay(10);
+
     RUN(frame, 2);
-    delay(10);
+
     FREC(frame, 2, 8);
-    delay(10);
+
     preset = 2;
   }
 }
@@ -64,7 +64,7 @@ void preset2() {
 
   if (preset == 2) {
     FREC(frame, 1, 1);
-    delay(10);  //10
+    //10
     FREC(frame, 2, 1);
     delay(7000);  //7010
     FREC(frame, 2, 30);
@@ -105,7 +105,7 @@ void preset20() {
 
   if (preset == 20) {
     FREC(frame, 1, 1);
-    delay(10);
+
     FREC(frame, 2, 1);
     delay(7000);
     FREC(frame, 1, 30);
@@ -200,11 +200,11 @@ void preset4() {
 
 void preset5() {
 
-  delay(10);
+
   FREC(frame, 1, 10);
-  delay(10);
+
   FREC(frame, 2, 10);
-  delay(10);
+
   preset = 6;
 }
 
@@ -212,11 +212,11 @@ void preset5() {
 
 void preset50() {
 
-  delay(10);
+
   FREC(frame, 1, 10);
-  delay(10);
+
   FREC(frame, 2, 10);
-  delay(10);
+
   preset = 7;
 }
 
@@ -224,11 +224,11 @@ void preset50() {
 
 void preset500() {
 
-  delay(10);
+
   FREC(frame, 1, 10);
-  delay(10);
+
   FREC(frame, 2, 10);
-  delay(10);
+
   preset = 8;
 }
 

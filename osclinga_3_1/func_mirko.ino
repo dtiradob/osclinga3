@@ -5,7 +5,8 @@
 void apaga() {
 
   if (!fin) {
-    estorbo2(0, 70, 60);
+    estorbo2(0, IZQUIERDA, DERECHA, 70, 60, 60);
+    //estorbo2(0, 70, 60);
     delay(1000);
     ledcWrite(1, 0);
     ledcWrite(2, 0);
@@ -39,6 +40,10 @@ void preset0() {
   ledcWrite(2, 0);
   ledcWrite(3, 0);
   ledcWrite(4, 0);
+
+  for (int i = 0; i < 4; i++) {
+    leds[i] = 0;
+  }
 }
 
 //------------------------------------------------------------------------
@@ -263,9 +268,15 @@ void preset7() {
 }
 
 //------------------------------------------------------------------------
-
-void estorback(int run, int pwm, int int1, int int2) {
-
+//void estorback(int run, int pwm, int int1, int int2) {
+void estorback(int runh, int led1h, int led2h, int pwmh, int int1h, int int2h) {
+  run = runh;
+  led1 = led1h;
+  led2 = led2h;
+  int1 = int1h;
+  int2 = int2h;
+  pwm = pwmh;
+  /*
   unsigned long currentMillis = millis();
 
   if (run) {
@@ -286,6 +297,7 @@ void estorback(int run, int pwm, int int1, int int2) {
     ledcWrite(2, 0);
     estorbo_on_back = 0;
   }
+  */
 }
 
 //------------------------------------------------------------------------
@@ -300,13 +312,15 @@ void estorbackfin(int run, int pwm, int int1, int int2) {
         previous_back = currentMillis;
         FREC(frame, 1, 30);
         delay(1000);
-        ledcWrite(2, pwm);
+        leds[ATRAS-1] = pwm;
+        //ledcWrite(2, pwm);
         estorbo_on_back = 1;
       }
     } else {
       if (currentMillis - previous_back >= int2) {
         previous_back = currentMillis;
-        ledcWrite(2, 0);
+        leds[ATRAS-1] = 0;
+        //ledcWrite(2, 0);
         FREC(frame, 1, 1);
         estorbo_on_back = 0;
       }
@@ -319,41 +333,48 @@ void estorbackfin(int run, int pwm, int int1, int int2) {
 
 //------------------------------------------------------------------------
 
-void estorbo(int run, int pwm, int int1, int int2) {
-  // run = run;
-  // led1 = led1h;
-  // led2 = led2h;
-  // int1 = int1h;
-  // int2 = int2h;
-  // pwm = pwmh;
-  // (int runh, int led1h, int led2h, int pwmh, int int1h, int int2h)
+//void estorbo(int run, int pwm, int int1, int int2) {
+void estorbo(int runh, int led1h, int led2h, int pwmh, int int1h, int int2h) {
+  run = runh;
+  led1 = led1h;
+  led2 = led2h;
+  int1 = int1h;
+  int2 = int2h;
+  pwm = pwmh;
 
-  unsigned long currentMillis = millis();
+  // unsigned long currentMillis = millis();
 
-  if (run) {
-    if (estorbo_on == 0) {
-      if (currentMillis - previous >= int1) {
-        previous = currentMillis;
-        ledcWrite(3, pwm);
-        estorbo_on = 1;
-      }
-    } else {
-      if (currentMillis - previous >= int2) {
-        previous = currentMillis;
-        ledcWrite(3, 0);
-        estorbo_on = 0;
-      }
-    }
-  } else {
-    ledcWrite(3, 0);
-    estorbo_on = 0;
-  }
+  // if (run) {
+  //   if (estorbo_on == 0) {
+  //     if (currentMillis - previous >= int1) {
+  //       previous = currentMillis;
+  //       ledcWrite(3, pwm);
+  //       estorbo_on = 1;
+  //     }
+  //   } else {
+  //     if (currentMillis - previous >= int2) {
+  //       previous = currentMillis;
+  //       ledcWrite(3, 0);
+  //       estorbo_on = 0;
+  //     }
+  //   }
+  // } else {
+  //   ledcWrite(3, 0);
+  //   estorbo_on = 0;
+  // }
 }
 
 //------------------------------------------------------------------------
 
-void estorbo2(int run, int pwm, int int1) {
-
+//void estorbo2(int run, int pwm, int int1) {
+void estorbo2(int runh, int led1h, int led2h, int pwmh, int int1h, int int2h) {
+  run = runh;
+  led1 = led1h;
+  led2 = led2h;
+  int1 = int1h;
+  int2 = int2h;
+  pwm = pwmh;
+  /*
   unsigned long currentMillis = millis();
 
   if (run) {
@@ -377,6 +398,7 @@ void estorbo2(int run, int pwm, int int1) {
     ledcWrite(4, 0);
     estorbo_on2 = 0;
   }
+  */
 }
 
 //------------------------------------------------------------------------

@@ -32,6 +32,12 @@
 #define ULT_TRIG 33
 #define ULT_ECHO 34
 #define PIR_INPUT 35
+#define IZQUIERDA 1
+#define ATRAS 2
+#define ADELANTE 3
+#define DERECHA 4
+
+
 
 //----------------------ENCODER-----------------------
 #define ROTARY_ENCODER_VCC_PIN -1
@@ -63,12 +69,9 @@ int int1 = 0;
 int int2 = 0;
 int pwm = 0;
 unsigned long previous_strobox = 0;
-
 int leds[4] = {0,0,0,0};
 
-
 //----------------------------
-
 
 unsigned char frame[8];
 int buttonState = 0;
@@ -132,7 +135,6 @@ void rotary_loop() {
     if(motorStates[0]){
       STOP(frame,1);
     }else {
-      
       RUN(frame,1);
     }
   
@@ -280,6 +282,7 @@ void loop() {
         displayFrecs();
         labels[2] = "";
         coreoMirko();
+        strobox();
       }
       break;
     case 2:  //OSC
@@ -335,13 +338,14 @@ void stopAll() {
   STOP(frame, 2);
   FREC(frame, 1, 0);
   FREC(frame, 2, 0);
+
+  //AGREGAR APAGADO DE LEDS?
 }
 
 
 
 void modBus_callback() {
   if (Serial2.available()) {
-    //display.clearDisplay();
     while (Serial2.available()) {
       Serial.println(Serial2.read(), DEC);
     }
@@ -358,10 +362,8 @@ void buttonRead() {
     if (reading != buttonState) {
       buttonState = reading;
       if (buttonState == LOW) {
-
         buttonPushCounter++;
         //Serial.println(buttonPushCounter);
-
         switch (buttonPushCounter) {
           case 1:
             modox = 1;
@@ -555,25 +557,24 @@ void estorboOSC(OSCMessage &msg) {
   }
   switch (led2) {
     case 0:
-      ledcWrite(1, 0);
-      ledcWrite(2, 0);
-      ledcWrite(3, 0);
-      ledcWrite(4, 0);
+      for(int i=0; i<4; i++){
+        leds[i] = 0;
+      }
       break;
     case 1:
-      ledcWrite(2, 0);
-      ledcWrite(3, 0);
-      ledcWrite(4, 0);
+      leds[2] = 0;
+      leds[3] = 0;
+      leds[4] = 0;
       break;
     case 2:
-      ledcWrite(1, 0);
-      ledcWrite(3, 0);
-      ledcWrite(4, 0);
+      leds[1] = 0;
+      leds[3] = 0;
+      leds[4] = 0;
       break;
     case 3:
-      ledcWrite(1, 0);
-      ledcWrite(2, 0);
-      ledcWrite(4, 0);
+      leds[1] = 0;
+      leds[2] = 0;
+      leds[4] = 0;
       break;
   }
   Serial.print("run: ");
@@ -592,7 +593,6 @@ void estorboOSC(OSCMessage &msg) {
 
 
 void STOP(unsigned char *frame, int address) {
-
   motorStates[address - 1] = 0;
   frame[0] = address;  // Address
   frame[1] = 0x06;     // Function Code
@@ -601,12 +601,10 @@ void STOP(unsigned char *frame, int address) {
   frame[4] = 0x00;     // Param HIGH Byte
   frame[5] = 0x00;     // Param LOW Byte
   CRC(frame);
-
   sendModBus(frame);
 }
 
 void RUN(unsigned char *frame, int address) {
-
   motorStates[address - 1] = 1;
   frame[0] = address;
   frame[1] = 0x06;
@@ -615,7 +613,6 @@ void RUN(unsigned char *frame, int address) {
   frame[4] = 0x00;
   frame[5] = 0x01;
   CRC(frame);
-
   sendModBus(frame);
 }
 
@@ -633,12 +630,10 @@ void FREC(unsigned char *frame, int address, float frecuencia) {
   frame[4] = (frec_int >> 8) & 0xFF;
   frame[5] = frec_int & 0xFF;
   CRC(frame);
-
   sendModBus(frame);
 }
 
 void modBus_STATUS(unsigned char *frame, int address) {
-
   frame[0] = address;
   frame[1] = 0x03;
   frame[2] = 0x00;
@@ -646,7 +641,6 @@ void modBus_STATUS(unsigned char *frame, int address) {
   frame[4] = 0x00;
   frame[5] = 0x00;
   CRC(frame);
-
   sendModBus(frame);
 }
 

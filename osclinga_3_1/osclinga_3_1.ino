@@ -32,10 +32,11 @@
 #define ULT_TRIG 33
 #define ULT_ECHO 34
 #define PIR_INPUT 35
-#define IZQUIERDA 1
-#define ATRAS 2
-#define ADELANTE 3
-#define DERECHA 4
+
+#define LEFT 1
+#define BACK 2
+#define FRONT 3
+#define RIGHT 4
 
 
 
@@ -227,16 +228,16 @@ void setup() {
 
 
   // (pin, canal)
-  ledcAttachPin(PWM1, 1);  // IZQUIERDA
-  ledcAttachPin(PWM2, 2);  // ATRÁS
-  ledcAttachPin(PWM3, 3);  // ADELANTE
-  ledcAttachPin(PWM4, 4);  // DERECHA
+  ledcAttachPin(PWM1, LEFT);  // IZQUIERDA
+  ledcAttachPin(PWM2, BACK);  // ATRÁS
+  ledcAttachPin(PWM3, FRONT);  // ADELANTE
+  ledcAttachPin(PWM4, RIGHT);  // DERECHA
 
   // (canal,frecuencia,resolución)
-  ledcSetup(1, 1000, 8);
-  ledcSetup(2, 1000, 8);
-  ledcSetup(3, 1000, 8);
-  ledcSetup(4, 1000, 8);
+  ledcSetup(LEFT, 1000, 8);
+  ledcSetup(BACK, 1000, 8);
+  ledcSetup(FRONT, 1000, 8);
+  ledcSetup(RIGHT, 1000, 8);
 
   // button
   pinMode(MODE, INPUT);

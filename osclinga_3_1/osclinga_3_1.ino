@@ -51,18 +51,26 @@ WiFiUDP Udp;
 const unsigned int localPort = 9000;
 OSCErrorCode error;
 
-//--------------------------------------
+//--------------LED VARIABLES--------------
 
 int estorbox_on = 0;
 int run = 0;
 int led1 = 0;
 int led2 = 0;
+int led3 = 0;
+int led4 = 0;
 int int1 = 0;
 int int2 = 0;
 int pwm = 0;
 unsigned long previous_strobox = 0;
-unsigned char frame[8];
 
+int leds[4] = {0,0,0,0};
+
+
+//----------------------------
+
+
+unsigned char frame[8];
 int buttonState = 0;
 int selec = 0;
 int apretado = 0;
@@ -98,6 +106,9 @@ struct ts t;
 float frecuencias[2] = { 0.0, 0.0 };
 bool motorStates[2] = { 0, 0 };
 unsigned long tiempo = 0;
+
+//
+
 
 //---------------FUNCIONES ENCODER----------------------
 
@@ -259,7 +270,7 @@ void setup() {
 }
 
 void loop() {
-
+  
   switch (modox) {
     case 1:  //COREO MIRKO
       {
@@ -283,6 +294,7 @@ void loop() {
           if (!msg.hasError()) {
             msg.dispatch("/motor", motoresOSC);
             msg.dispatch("/estorbo", estorboOSC);
+            msg.dispatch("/leds", ledsOSC);
             msg.dispatch("/status", statusOSC);
             msg.dispatch("/full", fullOSC);
             msg.dispatch("/full2", fullOSC2);
@@ -309,12 +321,13 @@ void loop() {
       }
       break;
   }
-
+  ledsControl();
   buttonRead();
   //modBus_STATUS(frame, 2);
   modBus_callback();
   agenda();
   printOLED();
+
 }
 
 void stopAll() {
@@ -323,6 +336,9 @@ void stopAll() {
   FREC(frame, 1, 0);
   FREC(frame, 2, 0);
 }
+
+
+
 void modBus_callback() {
   if (Serial2.available()) {
     //display.clearDisplay();
@@ -398,7 +414,6 @@ void motoresOSC(OSCMessage &msg) {
   int on = msg.getInt(1);
   float freq = msg.getInt(2);
 
-
   if (on && motorStates[id - 1] == 0) {
     RUN(frame, id);
   } else if (!on && motorStates[id - 1] == 1) {
@@ -419,25 +434,42 @@ void strobox() {
     if (estorbox_on == 0) {
       if (currentMillis - previous_strobox >= int1) {
         previous_strobox = currentMillis;
-        ledcWrite(led1, pwm);
-        ledcWrite(led2, 0);
+        leds[led1-1] =  pwm;
+        leds[led2-1] =  0;
         estorbox_on = 1;
       }
     } else {
       if (currentMillis - previous_strobox >= int2) {
         previous_strobox = currentMillis;
-        ledcWrite(led1, 0);
-        ledcWrite(led2, pwm);
+        leds[led1-1] =  0;
+        leds[led2-1] =  pwm;
         estorbox_on = 0;
       }
     }
   } else {
-    ledcWrite(led1, 0);
-    ledcWrite(led2, 0);
+    // leds[led1] =  0;
+    // leds[led2] =  0;
     estorbox_on = 0;
   }
 }
 
+
+void ledsControl(){
+  for(int i=0; i<4; i++){
+    ledcWrite(i+1, leds[i]);
+  }
+}
+
+void ledsOSC(OSCMessage &msg){
+  leds[msg.getInt(0) -1] = msg.getInt(1) ;
+  for(int i=0; i<4; i++){
+    Serial.print("led: ");
+    Serial.print(i+1);
+    Serial.print(", pwm: ");
+    Serial.println(leds[i]);
+  }
+
+}
 void statusOSC(OSCMessage &msg) {
   int id = msg.getInt(0);
 
@@ -488,19 +520,7 @@ void fullOSC2(OSCMessage &msg) {
   frame[5] = P & 0xFF;
 
   CRC(frame);
-
   sendModBus(frame);
-  /*
-  Serial.print("id: ");
-  Serial.print(id);
-  Serial.print(", encendido: ");
-  Serial.print(on);
-  Serial.print(", frequencia: ");
-  Serial.println(freq / 10.);
-*/
-  //printDisplay(id, freq);
-  //displayFrecs();
-  //display.display();
 }
 
 void estorboOSC(OSCMessage &msg) {
@@ -513,25 +533,24 @@ void estorboOSC(OSCMessage &msg) {
 
   switch (led1) {
     case 0:
-      ledcWrite(1, 0);
-      ledcWrite(2, 0);
-      ledcWrite(3, 0);
-      ledcWrite(4, 0);
+      for(int i=0; i<4; i++){
+        leds[i] = 0;
+      }
       break;
     case 1:
-      ledcWrite(2, 0);
-      ledcWrite(3, 0);
-      ledcWrite(4, 0);
+      leds[2] = 0;
+      leds[3] = 0;
+      leds[4] = 0;
       break;
     case 2:
-      ledcWrite(1, 0);
-      ledcWrite(3, 0);
-      ledcWrite(4, 0);
+      leds[1] = 0;
+      leds[3] = 0;
+      leds[4] = 0;
       break;
     case 3:
-      ledcWrite(1, 0);
-      ledcWrite(2, 0);
-      ledcWrite(4, 0);
+      leds[1] = 0;
+      leds[2] = 0;
+      leds[4] = 0;
       break;
   }
   switch (led2) {

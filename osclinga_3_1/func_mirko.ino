@@ -320,6 +320,13 @@ void estorbackfin(int run, int pwm, int int1, int int2) {
 //------------------------------------------------------------------------
 
 void estorbo(int run, int pwm, int int1, int int2) {
+  // run = run;
+  // led1 = led1h;
+  // led2 = led2h;
+  // int1 = int1h;
+  // int2 = int2h;
+  // pwm = pwmh;
+  // (int runh, int led1h, int led2h, int pwmh, int int1h, int int2h)
 
   unsigned long currentMillis = millis();
 

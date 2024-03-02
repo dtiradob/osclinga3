@@ -40,10 +40,9 @@
 
 
 
-//----------------------ENCODER-----------------------
+//------------------ENCODER VARIABLES--------------
 #define ROTARY_ENCODER_VCC_PIN -1
 #define ROTARY_ENCODER_STEPS 1
-
 //instead of changing here, rather change numbers above
 AiEsp32RotaryEncoder rotaryEncoder1 = AiEsp32RotaryEncoder(ENC1_CLK, ENC1_DT, ENC1_SW, ROTARY_ENCODER_VCC_PIN, ROTARY_ENCODER_STEPS);
 AiEsp32RotaryEncoder rotaryEncoder2 = AiEsp32RotaryEncoder(ENC2_CLK, ENC2_DT, ENC2_SW, ROTARY_ENCODER_VCC_PIN, ROTARY_ENCODER_STEPS);
@@ -51,9 +50,11 @@ float frecENC1 = 0.0;
 float frecENC2 = 0.0;
 
 
-//--------------WIFI - OSC---------------
-const char *ssid = "Plan Humboldt 2.4Ghz";
-const char *password = "holaplan0!";
+//--------------WIFI-OSC VARIABLES---------------
+// const char *ssid = "Plan Humboldt 2.4Ghz";
+// const char *password = "holaplan0!";
+const char *ssid = "Guga 2.4GHz";
+const char *password = "marialuisa";
 WiFiUDP Udp;
 const unsigned int localPort = 9000;
 OSCErrorCode error;
@@ -70,11 +71,9 @@ int int1 = 0;
 int int2 = 0;
 int pwm = 0;
 unsigned long previous_strobox = 0;
-int leds[4] = {0,0,0,0};
+int leds[4] = { 0, 0, 0, 0 };
 
-//----------------------------
-
-unsigned char frame[8];
+//----------------------MOD BUTTON VARIABLES--------------
 int buttonState = 0;
 int selec = 0;
 int apretado = 0;
@@ -82,19 +81,17 @@ unsigned long pushtime = 0;
 unsigned long ahora;
 unsigned long push;
 int modox = 0;
-int buttonPushCounter = 0;  // counter for the number of button presses
-int lastButtonState = 0;    // previous state of the
-
+int buttonPushCounter = 0;           // counter for the number of button presses
+int lastButtonState = 0;             // previous state of the
 unsigned long lastDebounceTime = 0;  // the last time the output pin was toggled
 unsigned long debounceDelay = 50;    // the debounce time; increase if the output flickers
 
+//----------------------DISPLAY VARIABLES----------------
 Adafruit_SSD1306 display = Adafruit_SSD1306(128, 64, &Wire, -1);
 
 String labels[4] = { "", "", "", "" };
 
-const int modbusDelay = 10;
-
-//--------------------variables mirko -------------------
+//--------------------MIRKO VARIABLES-------------------
 
 unsigned long previous = 0, previous2 = 0, previous_back = 0;
 unsigned long previousMillis = 0, previousMillis2 = 0, previousMillis7 = 0, previousMillis8 = 0;
@@ -104,19 +101,16 @@ int wait = 0, fin = 0, preset = 1, new_frec = 40;
 int dia, militar;
 struct ts t;
 
-//-------------------------------------------------------
-//-------------------------------------------------------
 
+//--------------------------MODBUS VARIABLES-------------
+
+unsigned char frame[8];
 float frecuencias[2] = { 0.0, 0.0 };
 bool motorStates[2] = { 0, 0 };
+const int modbusDelay = 10;
 unsigned long tiempo = 0;
 
-//
-
-
 //---------------FUNCIONES ENCODER----------------------
-
-
 void rotary_loop() {
   //dont print anything unless value changed
   if (rotaryEncoder1.encoderChanged()) {
@@ -133,14 +127,12 @@ void rotary_loop() {
     }
     lastTimePressed = millis();
     Serial.print("button1 pressed ");
-    if(motorStates[0]){
-      STOP(frame,1);
-    }else {
-      RUN(frame,1);
+    if (motorStates[0]) {
+      STOP(frame, 1);
+    } else {
+      RUN(frame, 1);
     }
-  
   }
-  
   if (rotaryEncoder2.encoderChanged()) {
     Serial.print("Value E2: ");
     frecENC2 = rotaryEncoder2.readEncoder() / 10.;
@@ -148,17 +140,17 @@ void rotary_loop() {
     FREC(frame, 2, frecENC2);
   }
   if (rotaryEncoder2.isEncoderButtonClicked()) {
-      static unsigned long lastTimePressed = 0;
+    static unsigned long lastTimePressed = 0;
     //ignore multiple press in that time milliseconds
     if (millis() - lastTimePressed < 500) {
       return;
     }
     lastTimePressed = millis();
     Serial.print("button2 pressed ");
-    if(motorStates[1]){
-      STOP(frame,2);
-    }else {
-      RUN(frame,2);
+    if (motorStates[1]) {
+      STOP(frame, 2);
+    } else {
+      RUN(frame, 2);
     }
   }
 }
@@ -168,18 +160,16 @@ void IRAM_ATTR readEncoderISR() {
   rotaryEncoder2.readEncoder_ISR();
 }
 
-//-----------------------------------------------------
+//-------------------SETUP-------------------
 
 void setup() {
-
+  //-------------------SERIAL SETUP-------------------
   Serial.begin(115200);
   while (!Serial) { delay(100); }
-  // ************************** MODBUS ***************************************
+  // ************************** MODBUS ****************************************
   Serial2.begin(115200, SERIAL_8N1, UART2RX, UART2TX);  // Inicia UART2 Rx=16 Tx=17
-  // ************************ ACCESS POINT ************************************
 
-
-  // Connect to WiFi network
+  //-------------------WIFI SETUP-------------------
   delay(10);
   Serial.println();
   Serial.println("******************************************************");
@@ -202,8 +192,8 @@ void setup() {
 #else
   Serial.println(Udp.localPort());
 #endif
-  // display
 
+  //-------------------DISPLAY SETUP-------------------
   display.begin(SSD1306_SWITCHCAPVCC, 0x3C);
   display.display();
   delay(100);
@@ -215,7 +205,7 @@ void setup() {
   String localip = WiFi.localIP().toString();
   labels[0] = "IP: " + localip;
 
-  //RTC
+  //-------------------RTC SETUP-------------------
   DS3231_get(&t);
   militar = t.min + t.hour * 100;
   dia = t.mon + t.mday * 100;
@@ -223,26 +213,25 @@ void setup() {
   Serial.println(militar);
   Serial.println("dia: ");
   Serial.println(dia);
-
   labels[1] = "date:" + String(t.mday) + "/" + String(t.mon) + " time:" + String(t.hour) + ":" + String(t.min);
 
 
+  //-------------------LED SETUP-------------------
   // (pin, canal)
-  ledcAttachPin(PWM1, LEFT);  // IZQUIERDA
-  ledcAttachPin(PWM2, BACK);  // ATRÁS
+  ledcAttachPin(PWM1, LEFT);   // IZQUIERDA
+  ledcAttachPin(PWM2, BACK);   // ATRÁS
   ledcAttachPin(PWM3, FRONT);  // ADELANTE
   ledcAttachPin(PWM4, RIGHT);  // DERECHA
-
   // (canal,frecuencia,resolución)
   ledcSetup(LEFT, 1000, 8);
   ledcSetup(BACK, 1000, 8);
   ledcSetup(FRONT, 1000, 8);
   ledcSetup(RIGHT, 1000, 8);
 
-  // button
+  //-------------------BUTTON SETUP-------------------
   pinMode(MODE, INPUT);
 
-
+  //-------------------MODBUS SETUP-------------------
   //modBus pin
   pinMode(MODBUS_DMX_REDE, OUTPUT);
   digitalWrite(MODBUS_DMX_REDE, LOW);  //lo iniciamos en LOW, listo para leer
@@ -251,14 +240,15 @@ void setup() {
   pinMode(A_MULTIPLEXER, OUTPUT);
   digitalWrite(A_MULTIPLEXER, LOW);  // LOW ENVIAR MODBUS; HIGH ENVIAR DMX
 
+  // Inicializar Motores
+  stopAll();
 
-  //--------------ENCODER------------------
+  //--------------ENCODER SETUP------------------
   //we must initialize rotary encoder
   rotaryEncoder1.begin();
   rotaryEncoder2.begin();
   rotaryEncoder1.setup(readEncoderISR);
   rotaryEncoder2.setup(readEncoderISR);
-
   //set boundaries and if values should cycle or not
   //in this example we will set possible values between 0 and 1000;
   bool circleValues = false;
@@ -267,13 +257,11 @@ void setup() {
   rotaryEncoder1.setAcceleration(0);                   //or set the value - larger number = more accelearation; 0 or 1 means disabled acceleration
   rotaryEncoder2.setAcceleration(0);                   //or set the value - larger number = more accelearation; 0 or 1 means disabled acceleration
 
-  // Inicializar Motores
-  stopAll();
   Serial.println("FIN SETUP");
 }
 
 void loop() {
-  
+
   switch (modox) {
     case 1:  //COREO MIRKO
       {
@@ -290,7 +278,6 @@ void loop() {
       {
         OSCMessage msg;
         int size = Udp.parsePacket();
-
         if (size > 0) {
           while (size--) {
             msg.fill(Udp.read());
@@ -299,9 +286,6 @@ void loop() {
             msg.dispatch("/motor", motoresOSC);
             msg.dispatch("/estorbo", estorboOSC);
             msg.dispatch("/leds", ledsOSC);
-            msg.dispatch("/status", statusOSC);
-            msg.dispatch("/full", fullOSC);
-            msg.dispatch("/full2", fullOSC2);
           } else {
             error = msg.getError();
             Serial.print("error: ");
@@ -327,38 +311,18 @@ void loop() {
   }
   ledsControl();
   buttonRead();
-  //modBus_STATUS(frame, 2);
   modBus_callback();
   agenda();
   printOLED();
-
-}
-
-void stopAll() {
-  STOP(frame, 1);
-  STOP(frame, 2);
-  FREC(frame, 1, 0);
-  FREC(frame, 2, 0);
-
-  //AGREGAR APAGADO DE LEDS?
 }
 
 
-
-void modBus_callback() {
-  if (Serial2.available()) {
-    while (Serial2.available()) {
-      Serial.println(Serial2.read(), DEC);
-    }
-  }
-}
-
+//--------------BUTTON FUNCTION------------------
 void buttonRead() {
   int reading = digitalRead(MODE);
   if (reading != lastButtonState) {
     lastDebounceTime = millis();
   }
-
   if ((millis() - lastDebounceTime) > debounceDelay) {
     if (reading != buttonState) {
       buttonState = reading;
@@ -396,56 +360,22 @@ void buttonRead() {
   lastButtonState = reading;
 }
 
-void printOLED() {
-  display.clearDisplay();
-  display.setCursor(0, 0);
-  display.print(labels[0]);
-  display.setCursor(0, 16);
-  display.print(labels[1]);
-  display.setCursor(0, 32);
-  display.print(labels[2]);
-  display.setCursor(0, 48);
-  display.print(labels[3]);
-  display.display();
-}
-
-
-
-void motoresOSC(OSCMessage &msg) {
-
-  int id = msg.getInt(0);
-  int on = msg.getInt(1);
-  float freq = msg.getInt(2);
-
-  if (on && motorStates[id - 1] == 0) {
-    RUN(frame, id);
-  } else if (!on && motorStates[id - 1] == 1) {
-    STOP(frame, id);
-  }
-  Serial.print("id: ");
-  Serial.print(id);
-  Serial.print(", encendido: ");
-  Serial.print(motorStates[id - 1]);
-  Serial.print(", frequencia: ");
-  Serial.println(freq / 10.);
-  FREC(frame, id, freq / 10.);
-}
-
+//--------------LED STROBO FUNCTIONS------------------
 void strobox() {
   unsigned long currentMillis = millis();
   if (run) {
     if (estorbox_on == 0) {
       if (currentMillis - previous_strobox >= int1) {
         previous_strobox = currentMillis;
-        leds[led1-1] =  pwm;
-        leds[led2-1] =  0;
+        leds[led1 - 1] = pwm;
+        leds[led2 - 1] = 0;
         estorbox_on = 1;
       }
     } else {
       if (currentMillis - previous_strobox >= int2) {
         previous_strobox = currentMillis;
-        leds[led1-1] =  0;
-        leds[led2-1] =  pwm;
+        leds[led1 - 1] = 0;
+        leds[led2 - 1] = pwm;
         estorbox_on = 0;
       }
     }
@@ -455,77 +385,22 @@ void strobox() {
     estorbox_on = 0;
   }
 }
-
-
-void ledsControl(){
-  for(int i=0; i<4; i++){
-    ledcWrite(i+1, leds[i]);
+void ledsControl() {
+  for (int i = 0; i < 4; i++) {
+    ledcWrite(i + 1, leds[i]);
   }
 }
 
-void ledsOSC(OSCMessage &msg){
-  leds[msg.getInt(0) -1] = msg.getInt(1) ;
-  for(int i=0; i<4; i++){
+//--------------OSC HANDLE FUNCTIONS-----------------
+void ledsOSC(OSCMessage &msg) {
+  leds[msg.getInt(0) - 1] = msg.getInt(1);
+  for (int i = 0; i < 4; i++) {
     Serial.print("led: ");
-    Serial.print(i+1);
+    Serial.print(i + 1);
     Serial.print(", pwm: ");
     Serial.println(leds[i]);
   }
-
 }
-void statusOSC(OSCMessage &msg) {
-  int id = msg.getInt(0);
-
-  frame[0] = 0x02;
-  frame[1] = 0x03;
-  frame[2] = 0x00;
-  frame[3] = id;
-  frame[4] = 0x00;
-  frame[5] = 0x00;
-  CRC(frame);
-
-  sendModBus(frame);
-}
-
-void fullOSC(OSCMessage &msg) {
-  Serial.println("Full");
-
-  int addr = msg.getInt(0);
-  int funct = msg.getInt(1);
-  int RH = msg.getInt(2);
-  int RL = msg.getInt(3);
-  int PH = msg.getInt(4);
-  int PL = msg.getInt(5);
-
-  frame[0] = addr;   // Address
-  frame[1] = funct;  // Function Code
-  frame[2] = RH;     // Register HIGH Byte
-  frame[3] = RL;     // Register LOW Byte
-  frame[4] = PH;     // Param HIGH Byte
-  frame[5] = PL;     // Param LOW Byte
-  CRC(frame);
-
-  sendModBus(frame);
-}
-
-void fullOSC2(OSCMessage &msg) {
-  Serial.println("Full 2");
-
-  int addr = msg.getInt(0);
-  int funct = msg.getInt(1);
-  int R = msg.getInt(2);
-  int P = msg.getInt(3);
-  frame[0] = addr;   // Address
-  frame[1] = funct;  // Function Code
-  frame[2] = (R >> 8) & 0xFF;
-  frame[3] = R & 0xFF;
-  frame[4] = (P >> 8) & 0xFF;
-  frame[5] = P & 0xFF;
-
-  CRC(frame);
-  sendModBus(frame);
-}
-
 void estorboOSC(OSCMessage &msg) {
   run = msg.getInt(0);
   led1 = msg.getInt(1);
@@ -533,10 +408,9 @@ void estorboOSC(OSCMessage &msg) {
   int1 = msg.getInt(3);
   int2 = msg.getInt(4);
   pwm = msg.getInt(5);
-
   switch (led1) {
     case 0:
-      for(int i=0; i<4; i++){
+      for (int i = 0; i < 4; i++) {
         leds[i] = 0;
       }
       break;
@@ -558,7 +432,7 @@ void estorboOSC(OSCMessage &msg) {
   }
   switch (led2) {
     case 0:
-      for(int i=0; i<4; i++){
+      for (int i = 0; i < 4; i++) {
         leds[i] = 0;
       }
       break;
@@ -592,6 +466,46 @@ void estorboOSC(OSCMessage &msg) {
   Serial.println(pwm);
 }
 
+void motoresOSC(OSCMessage &msg) {
+  int id = msg.getInt(0);
+  int on = msg.getInt(1);
+  float freq = msg.getInt(2);
+  if (on && motorStates[id - 1] == 0) {
+    RUN(frame, id);
+  } else if (!on && motorStates[id - 1] == 1) {
+    STOP(frame, id);
+  }
+  Serial.print("id: ");
+  Serial.print(id);
+  Serial.print(", encendido: ");
+  Serial.print(motorStates[id - 1]);
+  Serial.print(", frequencia: ");
+  Serial.println(freq / 10.);
+  FREC(frame, id, freq / 10.);
+}
+
+//---------------MODBUS FUNCTIONS------------------
+void stopAll() {
+  STOP(frame, 1);
+  STOP(frame, 2);
+  FREC(frame, 1, 0);
+  FREC(frame, 2, 0);
+  for (int i = 0; i < 4; i++) {
+    leds[i]= 0;
+  }
+  run = 0;
+  int1 = 0;
+  int2 = 0;
+  pwm = 0;
+}
+
+void modBus_callback() {
+  if (Serial2.available()) {
+    while (Serial2.available()) {
+      Serial.println(Serial2.read(), DEC);
+    }
+  }
+}
 
 void STOP(unsigned char *frame, int address) {
   motorStates[address - 1] = 0;
@@ -616,8 +530,6 @@ void RUN(unsigned char *frame, int address) {
   CRC(frame);
   sendModBus(frame);
 }
-
-
 
 void FREC(unsigned char *frame, int address, float frecuencia) {
   frecuencias[address - 1] = frecuencia;
@@ -646,7 +558,6 @@ void modBus_STATUS(unsigned char *frame, int address) {
 }
 
 void CRC(unsigned char *frame) {
-
   unsigned int temp, flag;
   temp = 0xFFFF;
 
@@ -671,8 +582,8 @@ void sendModBus(unsigned char *frame) {
   digitalWrite(MODBUS_DMX_REDE, LOW);
   delay(modbusDelay);
 }
-//------------------------------------------------------------------------
 
+//--------------RTC FUNCTIONS------------------
 void reloz() {
   if (modox > 1) {
     modox = 1;
@@ -682,7 +593,6 @@ void reloz() {
   pasado = millis();
   wait = 0;
 }
-
 void agenda() {
   DS3231_get(&t);
   militar = t.min + t.hour * 100;
@@ -699,6 +609,19 @@ void agenda() {
   }
 }
 
+//--------------DISPLAY FUNCTIONS------------------
+void printOLED() {
+  display.clearDisplay();
+  display.setCursor(0, 0);
+  display.print(labels[0]);
+  display.setCursor(0, 16);
+  display.print(labels[1]);
+  display.setCursor(0, 32);
+  display.print(labels[2]);
+  display.setCursor(0, 48);
+  display.print(labels[3]);
+  display.display();
+}
 void displayFrecs() {
   String on1 = "S ";
   String on2 = "S ";

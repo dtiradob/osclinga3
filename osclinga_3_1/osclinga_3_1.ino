@@ -51,10 +51,10 @@ float frecENC2 = 0.0;
 
 
 //--------------WIFI-OSC VARIABLES---------------
-// const char *ssid = "Plan Humboldt 2.4Ghz";
-// const char *password = "holaplan0!";
-const char *ssid = "Guga 2.4GHz";
-const char *password = "marialuisa";
+const char *ssid = "Plan Humboldt 2.4Ghz";
+const char *password = "holaplan0!";
+// const char *ssid = "Guga 2.4GHz";
+// const char *password = "marialuisa";
 WiFiUDP Udp;
 const unsigned int localPort = 9000;
 OSCErrorCode error;

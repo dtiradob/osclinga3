@@ -66,8 +66,7 @@ void FREC(unsigned char *frame, int address, float frecuencia) {
   Serial2.write(frame,8);
 }
 
-void CRC(unsigned char *frame) {
-    
+void CRC(unsigned char *frame) {   
   unsigned int temp, flag;
   temp = 0xFFFF;
 

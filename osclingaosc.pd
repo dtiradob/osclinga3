@@ -2465,7 +2465,7 @@
 #X coords 0 0 1 1 141 178 2 12 1;
 #X restore 1059 655 pd controlLeds;
 #X text 1115 613 LEDS, f 6;
-#X msg 69 995 connect 192.168.0.2 9000;
+#X msg 69 995 connect 192.168.1.80 9000;
 #X connect 0 0 4 0;
 #X connect 1 0 0 0;
 #X connect 1 1 0 1;

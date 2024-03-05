@@ -115,6 +115,52 @@ void setup() {
   server.onNotFound(notFound);
 
   server.begin();
+
+
 }
 
-void loop() {}
+void loop() {
+
+  readCSV();
+  delay(200);
+
+}
+
+
+void readCSV(){
+      // Open the CSV file
+  File file = SPIFFS.open("/form_data.csv", "r");
+  if (!file) {
+    Serial.println("Failed to open file");
+    return;
+  }
+
+  // Read each line of the CSV file
+  while (file.available()) {
+    String line = file.readStringUntil('\n'); // Read a line
+    line.trim(); // Remove leading and trailing whitespace
+
+    // Split the line into fields using comma as delimiter
+    int delimiterIndex = line.indexOf(',');
+    String field1 = line.substring(0, delimiterIndex);
+    line = line.substring(delimiterIndex + 1); // Move to next field
+    delimiterIndex = line.indexOf(',');
+    String field2 = line.substring(0, delimiterIndex);
+    line = line.substring(delimiterIndex + 1); // Move to next field
+    String field3 = line;
+
+    // Store the fields in an array or process them as needed
+    // Example: Store in an array
+    String rowData[] = {field1, field2, field3};
+
+    // Print the fields
+    Serial.print("Field 1: ");
+    Serial.println(rowData[0]);
+    Serial.print("Field 2: ");
+    Serial.println(rowData[1]);
+    Serial.print("Field 3: ");
+    Serial.println(rowData[2]);
+    Serial.println("------");
+  }
+
+}

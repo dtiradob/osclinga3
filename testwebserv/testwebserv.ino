@@ -7,6 +7,11 @@ const char *ssid = "Plan Humboldt 2.4Ghz";
 const char *password = "holaplan0!";
 
 
+float tiemposCSV[50];
+float F1CSV[50];
+float F2CSV[50];
+int pasosCSV = 0;
+
 AsyncWebServer server(80);
 
 void notFound(AsyncWebServerRequest *request) {
@@ -21,7 +26,7 @@ void handleSaveCSV(AsyncWebServerRequest *request) {
   Serial.println(request->params());
   // Read the CSV data from the request body
   String csvData = "";
-  AsyncWebParameter* p;
+  AsyncWebParameter *p;
   for (int i = 0; i < request->params(); i++) {
     p = request->getParam(i);
     int val = request->params() - 1;
@@ -69,8 +74,6 @@ void handleSaveCSV(AsyncWebServerRequest *request) {
 
   // Close the file again
   file.close();
-
-
 }
 
 void handleGetCSV(AsyncWebServerRequest *request) {
@@ -115,20 +118,23 @@ void setup() {
   server.onNotFound(notFound);
 
   server.begin();
-
-
 }
 
 void loop() {
 
   readCSV();
-  delay(200);
-
+  delay(10000);
 }
 
+/*
+float tiemposCSV[50];
+float F1CSV[50];
+float F2CSV[50];
+int pasosCSV = 0;
+*/
 
-void readCSV(){
-      // Open the CSV file
+void readCSV() {
+  // Open the CSV file
   File file = SPIFFS.open("/form_data.csv", "r");
   if (!file) {
     Serial.println("Failed to open file");
@@ -137,30 +143,57 @@ void readCSV(){
 
   // Read each line of the CSV file
   while (file.available()) {
-    String line = file.readStringUntil('\n'); // Read a line
-    line.trim(); // Remove leading and trailing whitespace
+    String line = file.readStringUntil('\n');  // Read a line
+    line.trim();                               // Remove leading and trailing whitespace
 
     // Split the line into fields using comma as delimiter
     int delimiterIndex = line.indexOf(',');
     String field1 = line.substring(0, delimiterIndex);
-    line = line.substring(delimiterIndex + 1); // Move to next field
+    line = line.substring(delimiterIndex + 1);  // Move to next field
     delimiterIndex = line.indexOf(',');
     String field2 = line.substring(0, delimiterIndex);
-    line = line.substring(delimiterIndex + 1); // Move to next field
+    line = line.substring(delimiterIndex + 1);  // Move to next field
     String field3 = line;
 
     // Store the fields in an array or process them as needed
     // Example: Store in an array
-    String rowData[] = {field1, field2, field3};
+    String rowData[] = { field1, field2, field3 };
 
     // Print the fields
-    Serial.print("Field 1: ");
-    Serial.println(rowData[0]);
+    Serial.print("Tiempo ");
+    Serial.print(pasosCSV);
+    Serial.print(": ");
+    Serial.print(rowData[0]);
+    Serial.print("  | ");
+    tiemposCSV[pasosCSV] =rowData[0].toFloat();
+    Serial.println(tiemposCSV[pasosCSV]);
+
+    Serial.print("F1 ");
+    Serial.print(pasosCSV);
+    Serial.print(": ");
+    Serial.print(rowData[1]);
+    Serial.print("  | ");
+    F1CSV[pasosCSV] =rowData[1].toFloat();
+    Serial.println(F1CSV[pasosCSV]);
+
+    Serial.print("F2 ");
+    Serial.print(pasosCSV);
+    Serial.print(": ");
+    Serial.print(rowData[2]);
+    Serial.print("  | ");
+    F2CSV[pasosCSV] =rowData[2].toFloat();
+    Serial.println(F2CSV[pasosCSV]);
+
+    /*
     Serial.print("Field 2: ");
     Serial.println(rowData[1]);
+    F1CSV[pasosCSV] =rowData[1].toFLoat();
     Serial.print("Field 3: ");
     Serial.println(rowData[2]);
+    F2CSV[pasosCSV] =rowData[2].toFLoat();
     Serial.println("------");
-  }
+    */
 
+    pasosCSV++;
+  }
 }

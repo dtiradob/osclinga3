@@ -48,6 +48,9 @@ float tiemposCSV[50];
 float F1CSV[50];
 float F2CSV[50];
 int pasosCSV = 0;
+int pasoActual = 0;
+int waitingCSV = 0;
+unsigned long tiempoCSV = 0;
 
 AsyncWebServer server(80);
 
@@ -69,15 +72,16 @@ const char *password = "holaplan0!";
 WiFiUDP Udp;
 const unsigned int localPort = 9000;
 OSCErrorCode error;
+String localip = "";
 
 //--------------LED VARIABLES--------------
 
 int estorbox_on = 0;
 int run = 0;
-int led1 = 0;
-int led2 = 0;
-int led3 = 0;
-int led4 = 0;
+int led1 = 2;
+int led2 = 3;
+int led3 = 4;
+int led4 = 5;
 int int1 = 0;
 int int2 = 0;
 int pwm = 0;
@@ -85,7 +89,7 @@ unsigned long previous_strobox = 0;
 int leds[4] = { 0, 0, 0, 0 };
 
 //----------------------MOD BUTTON VARIABLES--------------
-int buttonState = 0;
+int buttonState = 1;
 int selec = 0;
 int apretado = 0;
 unsigned long pushtime = 0;
@@ -93,7 +97,7 @@ unsigned long ahora;
 unsigned long push;
 int modox = 0;
 int buttonPushCounter = 0;           // counter for the number of button presses
-int lastButtonState = 0;             // previous state of the
+int lastButtonState = 1;             // previous state of the
 unsigned long lastDebounceTime = 0;  // the last time the output pin was toggled
 unsigned long debounceDelay = 50;    // the debounce time; increase if the output flickers
 
@@ -204,8 +208,8 @@ void setup() {
   Serial.println(Udp.localPort());
 #endif
 
-//-------------WEB y CSV SETUP----------
-if (!SPIFFS.begin(true)) {
+  //-------------WEB y CSV SETUP----------
+  if (!SPIFFS.begin(true)) {
     Serial.println("Error mounting SPIFFS");
     return;
   }
@@ -227,7 +231,7 @@ if (!SPIFFS.begin(true)) {
   display.setTextColor(SSD1306_WHITE);
   display.setTextSize(1);
   display.println(WiFi.localIP());
-  String localip = WiFi.localIP().toString();
+  localip = WiFi.localIP().toString();
   labels[0] = "IP: " + localip;
 
   //-------------------RTC SETUP-------------------
@@ -288,8 +292,17 @@ if (!SPIFFS.begin(true)) {
 }
 
 void loop() {
-
+  Serial.print(modox);
   switch (modox) {
+    case 0:  //idle
+      {
+        labels[0] = "MODO: " + String(modox) + " IDLE";
+        //String localip = WiFi.localIP().toString();
+        labels[1] = "IP: " + localip;
+        labels[2] = "date:" + String(t.mday) + "/" + String(t.mon) + " time:" + String(t.hour) + ":" + String(t.min);
+        displayFrecs();
+      }
+      break;
     case 1:  //COREO MIRKO
       {
         tiempo = millis() - pasado;
@@ -297,8 +310,8 @@ void loop() {
         labels[1] = "t:" + String(tiempo);
         displayFrecs();
         labels[2] = "";
-        coreoMirko();
         strobox();
+        coreoMirko();
       }
       break;
     case 2:  //OSC
@@ -335,13 +348,24 @@ void loop() {
         displayFrecs();
       }
       break;
+    case 4:  // CSV
+      {
+        modoCSV();
+        labels[0] = "MODO: " + String(modox) + " CSV";
+        labels[1] = "paso: " + String(pasoActual);
+        labels[2] = "t:" + String(int(tiemposCSV[pasoActual])) + " | dt:" + String(int(tiempoCSV));
+        displayFrecs();
+      }
+      break;
   }
   ledsControl();
   buttonRead();
-  modBus_callback();
+  // modBus_callback();
   agenda();
   printOLED();
 }
+
+
 
 
 //--------------BUTTON FUNCTION------------------
@@ -355,8 +379,17 @@ void buttonRead() {
       buttonState = reading;
       if (buttonState == LOW) {
         buttonPushCounter++;
-        //Serial.println(buttonPushCounter);
+        Serial.print("buttonPushCounter: ");
+        Serial.println(buttonPushCounter);
         switch (buttonPushCounter) {
+          case 0:
+            modox = 0;
+            Serial.print("modo: ");
+            Serial.print(modox);
+            Serial.println(" IDLE");
+            pasado = millis();
+            stopAll();
+            break;
           case 1:
             modox = 1;
             Serial.print("modo: ");
@@ -377,8 +410,18 @@ void buttonRead() {
             Serial.print("modo: ");
             Serial.print(modox);
             Serial.println(" ENC");
-            buttonPushCounter = 0;
+            //buttonPushCounter = 0;
             stopAll();
+            break;
+          case 4:
+            modox = 4;
+            Serial.print("modo: ");
+            Serial.print(modox);
+            Serial.println(" CSV");
+            buttonPushCounter = -1;
+            stopAll();
+            pasado = millis();
+            pasoActual = 0;
             break;
         }
       }
@@ -389,29 +432,48 @@ void buttonRead() {
 
 //--------------LED STROBO FUNCTIONS------------------
 void strobox() {
+  Serial.println("Strobox");
   unsigned long currentMillis = millis();
   if (run) {
+    Serial.println("RUN");
+
     if (estorbox_on == 0) {
       if (currentMillis - previous_strobox >= int1) {
         previous_strobox = currentMillis;
-        leds[led1 - 1] = pwm;
-        leds[led2 - 1] = 0;
+        if (led1 == 0) {
+        } else {
+          leds[led1 - 1] = pwm;
+        }
+        if (led2 == 0) {
+        } else {
+          leds[led2 - 1] = 0;
+        }
         estorbox_on = 1;
       }
     } else {
       if (currentMillis - previous_strobox >= int2) {
         previous_strobox = currentMillis;
-        leds[led1 - 1] = 0;
-        leds[led2 - 1] = pwm;
+         if (led1 == 0) {
+        } else {
+          leds[led1 - 1] = 0;
+        }
+        if (led2 == 0) {
+        } else {
+          leds[led2 - 1] = pwm;
+        }
         estorbox_on = 0;
       }
     }
+
   } else {
     // leds[led1] =  0;
     // leds[led2] =  0;
+    Serial.println("NO RUN");
+
     estorbox_on = 0;
   }
 }
+
 void ledsControl() {
   for (int i = 0; i < 4; i++) {
     ledcWrite(i + 1, leds[i]);
@@ -435,6 +497,10 @@ void estorboOSC(OSCMessage &msg) {
   int1 = msg.getInt(3);
   int2 = msg.getInt(4);
   pwm = msg.getInt(5);
+
+
+  Serial.print("led1");
+  Serial.println(led1);
   switch (led1) {
     case 0:
       for (int i = 0; i < 4; i++) {
@@ -518,7 +584,7 @@ void stopAll() {
   FREC(frame, 1, 0);
   FREC(frame, 2, 0);
   for (int i = 0; i < 4; i++) {
-    leds[i]= 0;
+    leds[i] = 0;
   }
   run = 0;
   int1 = 0;
@@ -730,6 +796,8 @@ void handleSaveCSV(AsyncWebServerRequest *request) {
 
   // Close the file again
   file.close();
+
+  readCSV();
 }
 
 void handleGetCSV(AsyncWebServerRequest *request) {
@@ -783,7 +851,7 @@ void readCSV() {
     Serial.print(": ");
     Serial.print(rowData[0]);
     Serial.print("  | ");
-    tiemposCSV[pasosCSV] =rowData[0].toFloat();
+    tiemposCSV[pasosCSV] = rowData[0].toFloat() * 1000;
     Serial.println(tiemposCSV[pasosCSV]);
 
     Serial.print("F1 ");
@@ -791,7 +859,7 @@ void readCSV() {
     Serial.print(": ");
     Serial.print(rowData[1]);
     Serial.print("  | ");
-    F1CSV[pasosCSV] =rowData[1].toFloat();
+    F1CSV[pasosCSV] = rowData[1].toFloat();
     Serial.println(F1CSV[pasosCSV]);
 
     Serial.print("F2 ");
@@ -799,9 +867,45 @@ void readCSV() {
     Serial.print(": ");
     Serial.print(rowData[2]);
     Serial.print("  | ");
-    F2CSV[pasosCSV] =rowData[2].toFloat();
+    F2CSV[pasosCSV] = rowData[2].toFloat();
     Serial.println(F2CSV[pasosCSV]);
 
     pasosCSV++;
+  }
+}
+
+//------------MODO CSV---------------
+void modoCSV() {
+  tiempoCSV = millis() - pasado;
+  if (tiempoCSV >= tiemposCSV[pasoActual]) {  //termina el paso
+    pasoActual++;
+    pasado = millis();
+    if (pasoActual > pasosCSV) {  //TERMINA EL CSV
+      stopAll();
+      Serial.println("FIN CSV");
+      pasoActual = 0;
+      modox = 0;
+      pasado = millis();
+      buttonPushCounter = -1;
+    }
+    waitingCSV = 0;
+  } else {  //empieza el paso
+    if (waitingCSV == 0) {
+      if (F1CSV[pasoActual] == 0) {
+        STOP(frame, 1);
+        FREC(frame, 1, F1CSV[pasoActual]);
+      } else {
+        RUN(frame, 1);
+        FREC(frame, 1, F1CSV[pasoActual]);
+      }
+      if (F2CSV[pasoActual] == 0) {
+        STOP(frame, 2);
+        FREC(frame, 2, F2CSV[pasoActual]);
+      } else {
+        RUN(frame, 2);
+        FREC(frame, 2, F2CSV[pasoActual]);
+      }
+      waitingCSV = 1;
+    }
   }
 }

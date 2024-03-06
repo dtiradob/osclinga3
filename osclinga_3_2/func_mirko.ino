@@ -27,7 +27,7 @@ void apaga() {
 //------------------------------------------------------------------------
 
 void preset0() {
-
+  Serial.println("preset0");
 
   STOP(frame, 1);
 
@@ -36,13 +36,12 @@ void preset0() {
   for (int i = 0; i < 4; i++) {
     leds[i] = 0;
   }
-
 }
 
 //------------------------------------------------------------------------
 
 void preset1() {
-
+  Serial.println("preset1");
   if (preset == 1) {
     RUN(frame, 1);
 
@@ -59,6 +58,7 @@ void preset1() {
 //------------------------------------------------------------------------
 
 void preset2() {
+  Serial.println("preset2");
 
   if (preset == 2) {
     FREC(frame, 1, 1);
@@ -67,42 +67,42 @@ void preset2() {
     delay(7000);  //7010
     FREC(frame, 2, 30);
     delay(1000);
-    leds[BACK-1] = 100; 
+    leds[BACK - 1] = 100;
     //ledcWrite(3, 100);
     delay(50);
-    leds[BACK-1] = 0; 
+    leds[BACK - 1] = 0;
     //ledcWrite(3, 0);
-    leds[RIGHT-1] = 100; 
+    leds[RIGHT - 1] = 100;
     //ledcWrite(4, 100);
     delay(2000);
-    leds[RIGHT-1] = 0;
+    leds[RIGHT - 1] = 0;
     //ledcWrite(4, 0);
     FREC(frame, 2, 1);
     delay(2940);
     FREC(frame, 1, 30);
     delay(1000);
-    leds[BACK-1] = 100;
+    leds[BACK - 1] = 100;
     //ledcWrite(3, 100);
     delay(50);
-    leds[BACK-1] = 0;
+    leds[BACK - 1] = 0;
     //ledcWrite(3, 0);
-    leds[LEFT-1] = 100;
+    leds[LEFT - 1] = 100;
     //ledcWrite(1, 100);
     FREC(frame, 1, 1);
     delay(500);
-    leds[LEFT-1] = 0;
+    leds[LEFT - 1] = 0;
     //ledcWrite(1, 0);
     FREC(frame, 2, 33);
     delay(1000);
-    leds[BACK-1] = 100;
+    leds[BACK - 1] = 100;
     //ledcWrite(3, 100);
     delay(50);
-    leds[BACK-1] = 0;
+    leds[BACK - 1] = 0;
     //ledcWrite(3, 0);
-    leds[RIGHT-1] = 100;
+    leds[RIGHT - 1] = 100;
     //ledcWrite(4, 100);
     delay(2000);
-    leds[RIGHT-1] = 0;
+    leds[RIGHT - 1] = 0;
     //ledcWrite(4, 0);
     FREC(frame, 2, 1);
     preset = 3;
@@ -119,44 +119,44 @@ void preset20() {
     delay(7000);
     FREC(frame, 1, 30);
     delay(1000);
-    leds[BACK-1] =100;
+    leds[BACK - 1] = 100;
     //ledcWrite(3, 100);
     delay(50);
-    leds[BACK-1] =0;
+    leds[BACK - 1] = 0;
     //ledcWrite(3, 0);
-    leds[LEFT-1] =100;
+    leds[LEFT - 1] = 100;
     //ledcWrite(1, 100);
     FREC(frame, 1, 1);
     delay(500);
-    leds[LEFT-1] =0;
+    leds[LEFT - 1] = 0;
     //ledcWrite(1, 0);
     delay(2940);
     FREC(frame, 2, 33);
     delay(1000);
-    leds[BACK-1] =100;
+    leds[BACK - 1] = 100;
     //ledcWrite(3, 100);
     delay(50);
-    leds[BACK-1] =0;
+    leds[BACK - 1] = 0;
     //ledcWrite(3, 0);
-    leds[RIGHT-1] =100;
+    leds[RIGHT - 1] = 100;
     //ledcWrite(4, 100);
     delay(2000);
-    leds[RIGHT-1] =0;
+    leds[RIGHT - 1] = 0;
     //ledcWrite(4, 0);
     FREC(frame, 2, 1);
     delay(1000);
     FREC(frame, 1, 30);
     delay(1000);
-    leds[BACK-1] =100;
+    leds[BACK - 1] = 100;
     //ledcWrite(3, 100);
     delay(50);
-    leds[BACK-1] =0;
+    leds[BACK - 1] = 0;
     //ledcWrite(3, 0);
-    leds[LEFT-1] =100;
+    leds[LEFT - 1] = 100;
     //ledcWrite(1, 100);
     FREC(frame, 1, 1);
     delay(500);
-    leds[LEFT-1] =0;
+    leds[LEFT - 1] = 0;
     //ledcWrite(1, 0);
     preset = 4;
   }
@@ -165,7 +165,7 @@ void preset20() {
 //------------------------------------------------------------------------
 
 void preset3() {
-
+Serial.println("preset3");
   int zap = random(2);
   if (zap == 0) {
     FREC(frame, 1, (random(13) + 15));
@@ -183,24 +183,24 @@ void preset3() {
 //------------------------------------------------------------------------
 
 void preset4() {
-
+Serial.println("preset4");
   int randomcito;
   int zap = random(2);
   if (zap == 0) {
     randomcito = (random(14) + 15);
     FREC(frame, 1, randomcito);
     if (randomcito >= 22) {
-      leds[BACK-1] =100;
+      leds[BACK - 1] = 100;
       //ledcWrite(3, 100);
       delay(50);
-      leds[BACK-1] =0;
+      leds[BACK - 1] = 0;
       //ledcWrite(3, 0);
-      leds[LEFT-1] =100;
+      leds[LEFT - 1] = 100;
       //ledcWrite(1, 100);
       delay(2000);
       FREC(frame, 1, 12);
       delay(500);
-      leds[LEFT-1] =0;
+      leds[LEFT - 1] = 0;
       //ledcWrite(1, 0);
     }
   }
@@ -209,17 +209,17 @@ void preset4() {
     randomcito = (random(13) + 15);
     FREC(frame, 2, randomcito);
     if (randomcito >= 22) {
-      leds[BACK-1] =100;
+      leds[BACK - 1] = 100;
       //ledcWrite(3, 100);
       delay(50);
-      leds[BACK-1] =0;
+      leds[BACK - 1] = 0;
       //ledcWrite(3, 0);
-      leds[RIGHT-1] =100;
+      leds[RIGHT - 1] = 100;
       //ledcWrite(4, 100);
       delay(2000);
       FREC(frame, 2, 8);
       delay(500);
-      leds[RIGHT-1] =0;
+      leds[RIGHT - 1] = 0;
       //ledcWrite(4, 0);
     }
   }
@@ -350,14 +350,14 @@ void estorbackfin(int run, int pwm, int int1, int int2) {
       }
     }
   } else {
-    leds[FRONT-1] =0;
+    leds[FRONT - 1] = 0;
     //ledcWrite(2, 0);
     estorbo_on_back = 0;
   }
 }
 
 //------------------------------------------------------------------------
-
+//estorbo(1, FRONT, 0, 40, 80, 60);
 //void estorbo(int run, int pwm, int int1, int int2) {
 void estorbo(int runh, int led1h, int led2h, int pwmh, int int1h, int int2h) {
   run = runh;

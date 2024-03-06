@@ -1,23 +1,25 @@
 void coreoMirko() {
-
-  if (tiempo < 420000) {
+  //Serial.print("tiempo en coreo: ");
+  //Serial.println(tiempo);
+  if (tiempo < 4200) {
+    
     preset1();
     //estorbo(1, 40, 80, 60);
     estorbo(1, FRONT, 0, 40, 80, 60);
   }
 
-  if ((tiempo > 420000) && (tiempo < 440000)) {
+  if ((tiempo > 4200) && (tiempo < 4400)) {
     //estorbo(0, 20, 30, 30);
     estorbo(0, FRONT, 0, 20, 30, 30);
     preset2();
   }
 
-  if ((tiempo > 440000) && (tiempo < 500000)) {
+  if ((tiempo > 4400) && (tiempo < 5000)) {
     delay((random(2000)) + 2000);
     preset3();
   }
 
-  if ((tiempo > 500000) && (tiempo < 520000)) {
+  if ((tiempo > 5000) && (tiempo < 520000)) {
     preset20();
   }
 
@@ -78,6 +80,7 @@ void coreoMirko() {
   }
 
   if (wait) {
+    Serial.println("WAIT");
     agenda();
   }
 }

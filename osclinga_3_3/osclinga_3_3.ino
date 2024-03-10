@@ -223,7 +223,7 @@ void setup() {
   server.onNotFound(notFound);
   server.begin();
 
-  readCSV();
+  readCSV();//LEER COREO
 
   //-------------------DISPLAY SETUP-------------------
   display.begin(SSD1306_SWITCHCAPVCC, 0x3C);
@@ -836,7 +836,7 @@ void handleSaveCSV(AsyncWebServerRequest *request) {
 
 
 
-  readCSV();
+  readCSV();//PASAR PARAMETRO DE NOMBRE
 }
 
 void handleGetCSV(AsyncWebServerRequest *request) {
@@ -865,7 +865,7 @@ void handleListPresets(AsyncWebServerRequest *request) {
   request->send(200, "text/csv", preset);
 }
 
-
+//AGREGAR PARAMETRO DE NOMBRE DE ARCHIVO
 void readCSV() {
   // Open the CSV file
   File file = SPIFFS.open("/form_data.csv", "r");

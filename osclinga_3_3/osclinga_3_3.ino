@@ -52,7 +52,7 @@ int pasoActual = 0;
 int waitingCSV = 0;
 unsigned long tiempoCSV = 0;
 String presets[] = { "P0", "P1", "P2", "P3", "P4", "P5", "P6", "P7" };
-String csvName= "";
+String csvName = "";
 AsyncWebServer server(80);
 
 //------------------ENCODER VARIABLES--------------
@@ -709,15 +709,10 @@ void agenda() {
   Serial.print("militar: ");
   Serial.println(militar);
   */
-  if ((dia == 903) || (dia == 1106) || (dia == 1806) || (dia == 2506) || (dia == 207) || (dia == 907) || (dia == 1607)) {
-    if ((militar == 1200) || (militar == 1202) || (militar == 1203)) {
-      if (wait == 1) {
-        readCSV("coreo");
-        reloz();
-      }
-    }
+  if ((dia == 1703) || (dia == 2403) || (dia == 3103) || (dia == 704) || (dia == 1404) || (dia == 2104) || (dia == 2804) || (dia == 505) || (dia == 1205) || (dia == 1905) || (dia == 2605) || (dia == 206) || (dia == 906)) {
+    //LOS DOMINGOS SON DEL SEÑOR, ALELUYA HERMANO
   } else {
-    if ((militar == 1553) || (militar == 1555) || (militar == 1540)) {
+    if ((militar == 900) || (militar == 1000) || (militar == 1100 || (militar == 1200) || (militar == 1300) || (militar == 1400) || (militar == 1500) || (militar == 1600) || (militar == 1700) || (militar == 1800) || (militar == 1900) || (militar == 2000) || (militar == 2100)) {
       if (wait == 1) {
         readCSV("coreo");
         reloz();
@@ -951,7 +946,7 @@ void createCoreo() {
     }
   }
   presetListFile.close();
-  
+
   File coreoFile = SPIFFS.open("/coreo.csv", "w");
   if (!coreoFile) {
     Serial.println("Failed to open file");
@@ -986,12 +981,12 @@ void readCSV(String param) {
     Serial.println("Failed to open file");
     return;
   }
-  pasosCSV= 0;
+  pasosCSV = 0;
   // Read each line of the CSV file
   while (file.available()) {
     String line = file.readStringUntil('\n');  // Read a line
     line.trim();                               // Remove leading and trailing whitespace
-    
+
     // Split the line into fields using comma as delimiter
     int delimiterIndex = line.indexOf(',');
     String field1 = line.substring(0, delimiterIndex);

@@ -10,7 +10,7 @@ body{
 }    
 .table-container {
     margin: 0 auto;
-    max-width: 30em;
+    max-width: 40em;
     overflow-x: auto;
 }
 
@@ -35,15 +35,21 @@ td {
     text-align: center;
     
 }
-input{
-    max-width: 4em;
+
+
+#selectContainer{
+    display: flex;
 }
 
-/* Responsive buttons */
-button {
-    padding: 4px 8px;
+.selects{
+    width: 3em;
 }
-
+.selects select {
+    width: 100%;
+}
+.selects button{
+    width: 100%;
+}
 /* Mobile-specific styles */
 @media only screen and (max-width: 600px) {
     /* Reduce padding for buttons */
@@ -91,6 +97,7 @@ button {
 <button type="button" onclick="addRow()">Add Row</button>
 <button type="button" onclick="removeLastRow()">Remove Last Row</button> <!-- Button to remove last row -->
 <button type="button" onclick="saveCSV()">Save Preset</button>
+<button type="button" onclick="playPreset()">Save & Play Preset</button>
 <!-- <button type="button" onclick="downloadCSV()">Download CSV</button> -->
 
 
@@ -101,7 +108,7 @@ button {
 <div id="selectContainer">
 </div>
 <button type="button" onclick="addSelect()">Add Select</button>
-<button type="button" onclick="sendSelections()">Send Selections</button>
+<button type="button" onclick="sendSelections()">Save & Play</button>
 </div>
 
 
@@ -200,7 +207,30 @@ function saveCSV() {
         console.error('There was a problem with the fetch operation:', error);
     });
 }
-
+function playPreset() {
+    saveCSV();
+    var name = document.getElementById("name").value;
+    console.log(name);
+    fetch('/play_preset', {
+        method: 'POST',
+        body: 'plain=' + encodeURIComponent(name), // Ensure CSV content is properly encoded
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+        }
+    })
+    .then(response => {
+        if (response.ok) {
+            return response.text();
+        }
+        throw new Error('Network response was not ok.');
+    })
+    .then(data => {
+        alert(data); // Display the server response
+    })
+    .catch(error => {
+        console.error('There was a problem with the fetch operation:', error);
+    });
+}
 function loadCSV(preset) {
     var name = document.getElementById("name")
     fetch('/get_csv?name=' + encodeURIComponent(preset))
@@ -263,13 +293,22 @@ function listPresets() {
         var presetList = document.getElementById("presetList");
         presetList.innerHTML = ""; // Clear the preset list
         items.forEach(preset => {
-            
-             var listItem = document.createElement("li");
-             listItem.textContent = preset;
-             presetList.appendChild(listItem);
-             listItem.addEventListener("click", function() {
+            var listItem = document.createElement("li");
+            listItem.textContent = preset;
+            var editButton = document.createElement("button");
+            editButton.textContent = "Edit";
+            editButton.onclick = function() {
                 loadCSV(preset);
-            });
+            };
+            // var deleteButton = document.createElement("button");
+            // deleteButton.textContent = "Delete";
+            // deleteButton.onclick = function() {
+            //     listItem.remove();
+            // };   
+            listItem.appendChild(editButton);
+            //listItem.appendChild(deleteButton);
+            presetList.appendChild(listItem);
+
         });
     })
     .catch(error => {
@@ -303,7 +342,7 @@ function addSelect() {
     // Set select name and button text
     select.name = "select" + (container.children.length + 1);
     button.type = "button";
-    button.textContent = "Remove";
+    button.textContent = "X";
     button.onclick = function() {
         removeSelect(this);
     };
@@ -311,6 +350,7 @@ function addSelect() {
     // Append select and button to the div, then append the div to the container
     div.appendChild(select);
     div.appendChild(button);
+    div.classList.add("selects");
     container.appendChild(div);
 }
 
@@ -350,6 +390,42 @@ function sendSelections() {
         console.error('There was a problem with the fetch operation:', error);
     });
 }
+// Function to load saved selections from the server
+function loadSelections() {
+    fetch('/load_selections')
+    .then(response => response.text())
+    .then(csvData => {
+        var selections = csvData.split('\n');
+        var container = document.getElementById("selectContainer");
+        container.innerHTML = ''; // Clear existing select elements
+        selections.forEach(function(selection) {
+            if (selection.trim() !== '') {
+                var value = selection.trim();
+                console.log(value);
+                addSelectWithValue(value);
+            }
+        });
+    })
+    .catch(error => {
+        console.error('Error loading selections:', error);
+    });
+}
+
+function addSelectWithValue(value) {
+    addSelect(); // Add a new select element
+    var selects = document.querySelectorAll("#selectContainer select");
+    var newSelect = selects[selects.length - 1]; // Get the last select element
+    
+    // Create an option element with the specified value and selected attribute
+    var option = document.createElement("option");
+    option.value = value;
+    option.textContent = value;
+    option.selected = true;
+    
+    // Append the option to the select element
+    newSelect.appendChild(option);
+}
+window.onload = loadSelections();
 </script>
 
 </body>

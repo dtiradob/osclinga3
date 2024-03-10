@@ -51,8 +51,8 @@ int pasosCSV = 0;
 int pasoActual = 0;
 int waitingCSV = 0;
 unsigned long tiempoCSV = 0;
-String presets[] = {"P0", "P1", "P2", "P3", "P4", "P5", "P6", "P7" };
-
+String presets[] = { "P0", "P1", "P2", "P3", "P4", "P5", "P6", "P7" };
+String csvName= "";
 AsyncWebServer server(80);
 
 //------------------ENCODER VARIABLES--------------
@@ -220,10 +220,12 @@ void setup() {
   server.on("/get_csv", HTTP_GET, handleGetCSV);
   server.on("/list_presets", HTTP_GET, handleListPresets);
   server.on("/save_selections", HTTP_POST, handleSaveSelections);
+  server.on("/play_preset", HTTP_POST, handlePlayPreset);
+  server.on("/load_selections", HTTP_GET, handleLoadCoreo);
   server.onNotFound(notFound);
   server.begin();
 
-  readCSV();//LEER COREO
+  //readCSV();  //LEER COREO
 
   //-------------------DISPLAY SETUP-------------------
   display.begin(SSD1306_SWITCHCAPVCC, 0x3C);
@@ -354,7 +356,7 @@ void loop() {
       {
         modoCSV();
         labels[0] = "MODO: " + String(modox) + " CSV";
-        labels[1] = "paso: " + String(pasoActual);
+        labels[1] = csvName + "| step: " + String(pasoActual);
         labels[2] = "t:" + String(int(tiemposCSV[pasoActual])) + " | dt:" + String(int(tiempoCSV));
         displayFrecs();
       }
@@ -696,6 +698,7 @@ void reloz() {
   pasado = millis();
   pasoActual = 0;
 }
+
 void agenda() {
   DS3231_get(&t);
   militar = t.min + t.hour * 100;
@@ -709,12 +712,14 @@ void agenda() {
   if ((dia == 903) || (dia == 1106) || (dia == 1806) || (dia == 2506) || (dia == 207) || (dia == 907) || (dia == 1607)) {
     if ((militar == 1200) || (militar == 1202) || (militar == 1203)) {
       if (wait == 1) {
+        readCSV("coreo");
         reloz();
       }
     }
   } else {
-    if ((militar == 1140) || (militar == 1440) || (militar == 1540)) {
+    if ((militar == 1553) || (militar == 1555) || (militar == 1540)) {
       if (wait == 1) {
+        readCSV("coreo");
         reloz();
       }
     }
@@ -752,18 +757,69 @@ void displayFrecs() {
 
 
 //---------------WEB Y CSV FUNCTIONS-------------
+void handleLoadCoreo(AsyncWebServerRequest *request) {
+  File file = SPIFFS.open("/coreo_list.csv", "r");
+  if (!file) {
+    request->send(404, "text/plain", "File not found");
+    return;
+  }
+  String csvContent = file.readString();
+  file.close();
+  request->send(200, "text/csv", csvContent);
+}
 
-void handleSaveSelections(AsyncWebServerRequest *request) {
-  AsyncWebParameter* plainParam = request->getParam("plain", true);
+void handlePlayPreset(AsyncWebServerRequest *request) {
+  AsyncWebParameter *plainParam = request->getParam("plain", true);
   if (plainParam != nullptr) {
-    String csvData = plainParam->value();
+    String presetToPlay = plainParam->value();
     Serial.println("Received CSV data:");
-    Serial.println(csvData);
-    request->send(200, "text/plain", "Selections received successfully");
+    Serial.println(presetToPlay);
+    readCSV(presetToPlay);
+    reloz();
+    request->send(200, "text/plain", "Playing: " + presetToPlay);
   } else {
     request->send(400, "text/plain", "Bad request: missing plain parameter");
   }
+}
 
+void handleSaveSelections(AsyncWebServerRequest *request) {
+  AsyncWebParameter *plainParam = request->getParam("plain", true);
+  if (plainParam != nullptr) {
+    String csvData = plainParam->value();
+    File file = SPIFFS.open("/coreo_list.csv", FILE_WRITE);
+    if (!file) {
+      request->send(500, "text/plain", "Error opening file for writing");
+      return;
+    }
+    if (file.print(csvData)) {
+      request->send(200, "text/plain", "CSV data saved successfully");
+    } else {
+      request->send(500, "text/plain", "Error writing to file");
+    }
+    file.close();
+    // Re-open the file for reading
+    file = SPIFFS.open("/coreo_list.csv", FILE_READ);
+    if (!file) {
+      Serial.println("Error opening file for reading");
+      return;
+    }
+
+    // Print the content of the file
+    Serial.println("Contents of coreo_list.csv:");
+    while (file.available()) {
+      Serial.write(file.read());
+    }
+    Serial.println();
+
+    // Close the file again
+    file.close();
+    request->send(200, "text/plain", "CSV saved successfully");
+  } else {
+    request->send(400, "text/plain", "Bad request: missing parameters");
+  }
+  createCoreo();
+  readCSV("coreo");
+  reloz();
 }
 
 void notFound(AsyncWebServerRequest *request) {
@@ -775,7 +831,7 @@ void handleRoot(AsyncWebServerRequest *request) {
 }
 void handleSaveCSV(AsyncWebServerRequest *request) {
   if (request->hasParam("name", true)) {
-    AsyncWebParameter* nameParam = request->getParam("name", true);
+    AsyncWebParameter *nameParam = request->getParam("name", true);
     String fileName = "/" + nameParam->value() + ".csv";
 
     Serial.println(request->params());
@@ -836,12 +892,11 @@ void handleSaveCSV(AsyncWebServerRequest *request) {
 
 
 
-  readCSV();//PASAR PARAMETRO DE NOMBRE
+  //readCSV();
 }
-
 void handleGetCSV(AsyncWebServerRequest *request) {
   if (request->hasParam("name")) {
-    AsyncWebParameter* nameParam = request->getParam("name");
+    AsyncWebParameter *nameParam = request->getParam("name");
     String fileName = "/" + nameParam->value() + ".csv";
     File file = SPIFFS.open(fileName, "r");
     if (!file) {
@@ -857,28 +912,86 @@ void handleGetCSV(AsyncWebServerRequest *request) {
 }
 
 void handleListPresets(AsyncWebServerRequest *request) {
+  int presetsCount = sizeof(presets) / sizeof(presets[0]);
   String preset = "";
-  for (int i = 0; i < 8; i++) {
-    preset += presets[i] + ",";
+  for (int i = 0; i < presetsCount; i++) {
+    preset += presets[i];
+    if (i < presetsCount - 1) {  // Check if it's not the last preset
+      preset += ",";             // Add a comma if it's not the last preset
+    }
   }
-  // Send the CSV content to the client
   request->send(200, "text/csv", preset);
 }
 
-//AGREGAR PARAMETRO DE NOMBRE DE ARCHIVO
-void readCSV() {
-  // Open the CSV file
-  File file = SPIFFS.open("/form_data.csv", "r");
+void createCoreo() {
+  // Read the preset list file
+  File presetListFile = SPIFFS.open("/coreo_list.csv", "r");
+  if (!presetListFile) {
+    Serial.println("Failed to open file");
+    return;
+  }
+  String combinedCSV = "";
+
+  while (presetListFile.available()) {
+    String presetName = presetListFile.readStringUntil('\n');  // Read a line
+    presetName.trim();
+    String presetFileName = "/" + presetName + ".csv";
+    Serial.println(presetFileName);
+    if (SPIFFS.exists(presetFileName)) {
+      File presetFile = SPIFFS.open(presetFileName, "r");
+      if (presetFile) {
+        String line;
+        while (presetFile.available()) {
+          line = presetFile.readStringUntil('\n');
+          combinedCSV += line;
+          combinedCSV += "\n";
+        }
+        presetFile.close();
+      }
+    }
+  }
+  presetListFile.close();
+  
+  File coreoFile = SPIFFS.open("/coreo.csv", "w");
+  if (!coreoFile) {
+    Serial.println("Failed to open file");
+    return;
+  }
+  coreoFile.print(combinedCSV);
+  coreoFile.close();
+
+  File coreo = SPIFFS.open("/coreo.csv", FILE_READ);
+  if (!coreo) {
+    Serial.println("Error opening file for reading");
+    return;
+  }
+
+  // // Print the content of the file
+  // Serial.println("Contents of coreo.csv:");
+  // while (coreo.available()) {
+  //   Serial.write(coreo.read());
+  // }
+  // Serial.println();
+
+  // // Close the file again
+  // coreo.close();
+}
+
+
+void readCSV(String param) {
+  csvName = param;
+  String fileName = "/" + csvName + ".csv";
+  File file = SPIFFS.open(fileName, "r");
   if (!file) {
     Serial.println("Failed to open file");
     return;
   }
-
+  pasosCSV= 0;
   // Read each line of the CSV file
   while (file.available()) {
     String line = file.readStringUntil('\n');  // Read a line
     line.trim();                               // Remove leading and trailing whitespace
-
+    
     // Split the line into fields using comma as delimiter
     int delimiterIndex = line.indexOf(',');
     String field1 = line.substring(0, delimiterIndex);
@@ -927,14 +1040,14 @@ void modoCSV() {
   if (tiempoCSV >= tiemposCSV[pasoActual]) {  //termina el paso
     pasoActual++;
     pasado = millis();
-    if (pasoActual > pasosCSV) {  //TERMINA EL CSV
+    if (pasoActual == pasosCSV) {  //TERMINA EL CSV
       stopAll();
       Serial.println("FIN CSV");
       pasoActual = 0;
       modox = 0;
       pasado = millis();
       buttonPushCounter = -1;
-      wait=1;
+      wait = 1;
     }
     waitingCSV = 0;
   } else {  //empieza el paso

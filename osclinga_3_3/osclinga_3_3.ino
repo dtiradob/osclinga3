@@ -44,9 +44,9 @@
 
 //------------------WEB Y CSV VARIABLES--------------
 
-float tiemposCSV[50];
-float F1CSV[50];
-float F2CSV[50];
+float tiemposCSV[100];
+float F1CSV[100];
+float F2CSV[100];
 int pasosCSV = 0;
 int pasoActual = 0;
 int waitingCSV = 0;

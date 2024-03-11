@@ -724,15 +724,10 @@ void agenda() {
   Serial.print("militar: ");
   Serial.println(militar);
   */
-  if ((dia == 903) || (dia == 1106) || (dia == 1806) || (dia == 2506) || (dia == 207) || (dia == 907) || (dia == 1607)) {
-    if ((militar == 1200) || (militar == 1202) || (militar == 1203)) {
-      if (wait == 1) {
-        readCSV("coreo");
-        reloz();
-      }
-    }
+  if ((dia == 1703) || (dia == 2403) || (dia == 3103) || (dia == 704) || (dia == 1404) || (dia == 2104) || (dia == 2804) || (dia == 505) || (dia == 1205) || (dia == 1905) || (dia == 2605) || (dia == 206) || (dia == 906)) {
+    //LOS DOMINGOS SON DEL SEÑOR, ALELUYA HERMANO
   } else {
-    if ((militar == 1553) || (militar == 1555) || (militar == 1540)) {
+    if ((militar == 900) || (militar == 1000) || (militar == 1100 || (militar == 1200) || (militar == 1300) || (militar == 1400) || (militar == 1500) || (militar == 1600) || (militar == 1700) || (militar == 1800) || (militar == 1900) || (militar == 2000) || (militar == 2100)) {
       if (wait == 1) {
         readCSV("coreo");
         reloz();

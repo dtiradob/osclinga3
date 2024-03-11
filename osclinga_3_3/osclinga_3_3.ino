@@ -42,11 +42,13 @@
 #define RIGHT 4
 
 
+
 //------------------WEB Y CSV VARIABLES--------------
 
-float tiemposCSV[100];
-float F1CSV[100];
-float F2CSV[100];
+#define MAXSTEPS 999
+float tiemposCSV[MAXSTEPS];
+float F1CSV[MAXSTEPS];
+float F2CSV[MAXSTEPS];
 int pasosCSV = 0;
 int pasoActual = 0;
 int waitingCSV = 0;

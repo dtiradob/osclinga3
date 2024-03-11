@@ -52,7 +52,7 @@ int pasoActual = 0;
 int waitingCSV = 0;
 unsigned long tiempoCSV = 0;
 String presets[] = { "P0", "P1", "P2", "P3", "P4", "P5", "P6", "P7" };
-String csvName= "";
+String csvName = "";
 AsyncWebServer server(80);
 
 //------------------ENCODER VARIABLES--------------
@@ -66,10 +66,16 @@ float frecENC2 = 0.0;
 
 
 //--------------WIFI-OSC VARIABLES---------------
-const char *ssid = "Plan Humboldt 2.4Ghz";
-const char *password = "holaplan0!";
-// const char *ssid = "Guga 2.4GHz";
-// const char *password = "marialuisa";
+// const char *ssid = "Plan Humboldt 2.4Ghz";
+// const char *password = "holaplan0!";
+//const char *ssid = "Guga 2.4GHz";
+//const char *password = "marialuisa";
+//
+const char *ssid = "osclinga";
+const char *password = "p1c0p4lqu3l33";
+#define AP 1  // 1:AP | 0:client
+
+
 WiFiUDP Udp;
 const unsigned int localPort = 9000;
 OSCErrorCode error;
@@ -188,18 +194,28 @@ void setup() {
   //-------------------WIFI SETUP-------------------
   delay(10);
   Serial.println();
-  Serial.println("******************************************************");
-  Serial.print("Connecting to ");
-  Serial.println(ssid);
-  WiFi.begin(ssid, password);
-  while (WiFi.status() != WL_CONNECTED) {
-    delay(500);
-    Serial.print(".");
+  if (AP == 1) {
+    Serial.print("Setting AP (Access Point)…");
+    WiFi.softAP(ssid, password);
+    localip = WiFi.softAPIP().toString();
+    Serial.print("AP IP address: ");
+    Serial.println(localip);
+  } else {
+    Serial.println("******************************************************");
+    Serial.print("Connecting to ");
+    Serial.println(ssid);
+    WiFi.begin(ssid, password);
+    while (WiFi.status() != WL_CONNECTED) {
+      delay(500);
+      Serial.print(".");
+    }
+    Serial.println("");
+    Serial.println("WiFi connected");
+    Serial.println("IP address: ");
+    localip = WiFi.localIP().toString();
+    Serial.println(localip);
   }
-  Serial.println("");
-  Serial.println("WiFi connected");
-  Serial.println("IP address: ");
-  Serial.println(WiFi.localIP());
+
   Serial.println("Starting UDP");
   Udp.begin(localPort);
   Serial.print("Local port: ");
@@ -235,8 +251,7 @@ void setup() {
   display.display();
   display.setTextColor(SSD1306_WHITE);
   display.setTextSize(1);
-  display.println(WiFi.localIP());
-  localip = WiFi.localIP().toString();
+  display.println(localip);
   labels[0] = "IP: " + localip;
 
   //-------------------RTC SETUP-------------------
@@ -951,7 +966,7 @@ void createCoreo() {
     }
   }
   presetListFile.close();
-  
+
   File coreoFile = SPIFFS.open("/coreo.csv", "w");
   if (!coreoFile) {
     Serial.println("Failed to open file");
@@ -986,12 +1001,12 @@ void readCSV(String param) {
     Serial.println("Failed to open file");
     return;
   }
-  pasosCSV= 0;
+  pasosCSV = 0;
   // Read each line of the CSV file
   while (file.available()) {
     String line = file.readStringUntil('\n');  // Read a line
     line.trim();                               // Remove leading and trailing whitespace
-    
+
     // Split the line into fields using comma as delimiter
     int delimiterIndex = line.indexOf(',');
     String field1 = line.substring(0, delimiterIndex);

@@ -727,7 +727,7 @@ void agenda() {
   if ((dia == 1703) || (dia == 2403) || (dia == 3103) || (dia == 704) || (dia == 1404) || (dia == 2104) || (dia == 2804) || (dia == 505) || (dia == 1205) || (dia == 1905) || (dia == 2605) || (dia == 206) || (dia == 906)) {
     //LOS DOMINGOS SON DEL SEÑOR, ALELUYA HERMANO
   } else {
-    if ((militar == 900) || (militar == 1000) || (militar == 1100 || (militar == 1200) || (militar == 1300) || (militar == 1400) || (militar == 1500) || (militar == 1600) || (militar == 1700) || (militar == 1800) || (militar == 1900) || (militar == 2000) || (militar == 2100)) {
+    if ((militar == 900) || (militar == 1000) || (militar == 1100) || (militar == 1200) || (militar == 1300) || (militar == 1400) || (militar == 1500) || (militar == 1600) || (militar == 1700) || (militar == 1800) || (militar == 1900) || (militar == 2000) || (militar == 2100)) {
       if (wait == 1) {
         readCSV("coreo");
         reloz();
@@ -735,6 +735,7 @@ void agenda() {
     }
   }
 }
+
 
 //--------------DISPLAY FUNCTIONS------------------
 void printOLED() {

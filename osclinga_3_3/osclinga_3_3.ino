@@ -70,12 +70,12 @@ float frecENC2 = 0.0;
 //--------------WIFI-OSC VARIABLES---------------
 // const char *ssid = "Plan Humboldt 2.4Ghz";
 // const char *password = "holaplan0!";
-//const char *ssid = "Guga 2.4GHz";
-//const char *password = "marialuisa";
+const char *ssid = "Guga 2.4GHz";
+const char *password = "marialuisa";
 //
-const char *ssid = "osclinga";
-const char *password = "p1c0p4lqu3l33";
-#define AP 1  // 1:AP | 0:client
+//const char *ssid = "osclinga";
+//const char *password = "p1c0p4lqu3l33";
+#define AP 0  // 1:AP | 0:client
 
 
 WiFiUDP Udp;
@@ -242,8 +242,7 @@ void setup() {
   server.on("/load_selections", HTTP_GET, handleLoadCoreo);
   server.onNotFound(notFound);
   server.begin();
-
-  //readCSV();  //LEER COREO
+  readCSV("coreo"); //LEER COREO
 
   //-------------------DISPLAY SETUP-------------------
   display.begin(SSD1306_SWITCHCAPVCC, 0x3C);

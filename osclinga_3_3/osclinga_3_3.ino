@@ -68,13 +68,10 @@ float frecENC2 = 0.0;
 
 
 //--------------WIFI-OSC VARIABLES---------------
-// const char *ssid = "Plan Humboldt 2.4Ghz";
-// const char *password = "holaplan0!";
-const char *ssid = "Guga 2.4GHz";
-const char *password = "marialuisa";
+
 //
-//const char *ssid = "osclinga";
-//const char *password = "p1c0p4lqu3l33";
+const char *ssid = "osclinga";
+const char *password = "p1c0p4lqu3l33";
 #define AP 0  // 1:AP | 0:client
 
 

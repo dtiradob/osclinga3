@@ -72,7 +72,7 @@ float frecENC2 = 0.0;
 //
 const char *ssid = "osclinga";
 const char *password = "p1c0p4lqu3l33";
-#define AP 0  // 1:AP | 0:client
+#define AP 1  // 1:AP | 0:client
 
 
 WiFiUDP Udp;
